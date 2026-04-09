@@ -1,0 +1,3010 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Logilica Engineering Intelligence Platform</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Inter:wght@100..900&family=Plus+Jakarta+Sans:wght@300..800&display=swap"
+            rel="stylesheet"
+        />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/11.4.1/highcharts.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/11.4.1/highcharts-more.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/11.4.1/modules/solid-gauge.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/11.4.1/modules/exporting.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/11.4.1/modules/export-data.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highcharts/11.4.1/modules/sankey.min.js"></script>
+        <style>
+            /* ── DESIGN TOKENS (Logilica Style Guide) ─────────────────────────── */
+            :root {
+                --color-primary: #5742f1;
+                --color-primary-50: #edf0ff;
+                --color-primary-100: #dee4ff;
+                --color-danger: #db6962;
+                --color-danger-50: #fcf4f4;
+                --color-danger-100: #fae7e6;
+                --color-success: #69ad75;
+                --color-success-50: #f1f8f2;
+                --color-success-100: #dcefdc;
+                --color-warning: #f1b86d;
+                --color-info: #667fff;
+                --color-expressive: #e181a4;
+
+                --color-background: #ffffff;
+                --color-background-secondary: #f5f6fa;
+                --color-card-background: #ffffff;
+
+                --color-text: #0d0d0d;
+                --color-text-heading: #1e293b;
+                --color-text-accent: #adadad;
+
+                --color-border: #adadad;
+                --color-border-card: #b7b7b7;
+
+                --color-menu-back: #fafafa;
+                --color-menu-text: #0d0d0d;
+                --color-menu-text-submenu: #616e7c;
+                --color-menu-light: #ffffff;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                width: 100%;
+                height: 100%;
+            }
+            body {
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 400;
+                letter-spacing: -0.02em;
+                color: var(--color-text);
+                background-color: var(--color-background);
+            }
+
+            .container {
+                display: flex;
+                height: 100vh;
+            }
+
+            /* ── SIDEBAR ──────────────────────────────────────────────────────── */
+            .sidebar {
+                width: 224px;
+                background-color: var(--color-menu-back);
+                border-right: 0.5px solid var(--color-border-card);
+                padding: 20px 12px;
+                overflow-y: auto;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .logo-section {
+                display: flex;
+                align-items: center;
+                margin-bottom: 24px;
+                padding: 0 6px;
+            }
+
+            .logo-text {
+                font-family: "Plus Jakarta Sans", sans-serif;
+                font-size: 1.05rem;
+                font-weight: 600;
+                color: var(--color-text);
+                letter-spacing: -0.01em;
+            }
+
+            /* nav items use .text-body style (Montserrat 0.75rem 500) */
+            .nav-item {
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                color: var(--color-menu-text-submenu);
+                padding: 7px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+                margin-bottom: 2px;
+                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                display: block;
+            }
+
+            .nav-item:hover:not(.disabled) {
+                background-color: var(--color-menu-light);
+                color: var(--color-text);
+            }
+
+            .nav-item.active {
+                background-color: var(--color-menu-light);
+                color: var(--color-primary);
+                font-weight: 600;
+                box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.06);
+            }
+
+            .nav-item.disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
+            /* ── TOPBAR ───────────────────────────────────────────────────────── */
+            .main {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+
+            .topbar {
+                background-color: var(--color-background);
+                padding: 8px 28px;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                flex-shrink: 0;
+            }
+
+            .topbar-filters {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }
+
+            /* .dropdown-primary from style guide */
+            .dropdown-wrapper {
+                position: relative;
+            }
+
+            .dropdown-button {
+                display: flex;
+                height: 27px;
+                padding: 0 15px;
+                justify-content: center;
+                align-items: center;
+                gap: 8px;
+                border-radius: 5px;
+                border: 0.5px solid var(--color-border);
+                background: var(--color-background);
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                color: var(--color-text);
+                cursor: pointer;
+                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                white-space: nowrap;
+            }
+
+            .dropdown-button:hover {
+                border-color: var(--color-text);
+            }
+
+            .dropdown-menu {
+                display: none;
+                position: absolute;
+                top: calc(100% + 4px);
+                right: 0;
+                background-color: var(--color-background);
+                border: 0.5px solid var(--color-border);
+                border-radius: 5px;
+                box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.08);
+                z-index: 100;
+                min-width: 180px;
+            }
+
+            .dropdown-menu.active {
+                display: block;
+            }
+
+            .dropdown-item {
+                padding: 8px 14px;
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                color: var(--color-text);
+                cursor: pointer;
+                transition: background-color 0.15s ease;
+                white-space: nowrap;
+            }
+
+            .dropdown-item:first-child {
+                border-radius: 5px 5px 0 0;
+            }
+            .dropdown-item:last-child {
+                border-radius: 0 0 5px 5px;
+            }
+            .dropdown-item:hover {
+                background-color: var(--color-background-secondary);
+            }
+            .dropdown-item.selected {
+                background-color: var(--color-primary-50);
+                color: var(--color-primary);
+                font-weight: 600;
+            }
+
+            /* Use Cases button - variant="active" btn */
+            .use-cases-btn {
+                display: inline-flex;
+                height: 27px;
+                padding: 0 15px;
+                align-items: center;
+                gap: 6px;
+                border-radius: 5px;
+                border: none;
+                background: var(--color-primary);
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                color: #fff;
+                cursor: pointer;
+                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+                white-space: nowrap;
+            }
+            .use-cases-btn:hover {
+                background: #452dd5;
+            }
+
+            /* ── CONTENT AREA ─────────────────────────────────────────────────── */
+            .content {
+                flex: 1;
+                overflow-y: auto;
+                padding: 28px 28px;
+                background: var(--color-background);
+            }
+
+            /* Page title: .text-title style (2rem, 600, DM Sans) */
+            .page-title {
+                font-family: "DM Sans", sans-serif;
+                font-size: 2rem;
+                font-weight: 600;
+                letter-spacing: -0.02em;
+                line-height: 130%;
+                color: var(--color-text);
+                margin-bottom: 10px;
+            }
+
+            /* Actions bar */
+            .page-actions-bar {
+                display: flex;
+                justify-content: flex-end;
+                margin-bottom: 20px;
+            }
+
+            /* Actions: .dropdown-secondary from style guide */
+            .actions-btn {
+                display: flex;
+                height: 27px;
+                padding: 0 15px;
+                justify-content: center;
+                align-items: center;
+                gap: 8px;
+                border-radius: 5px;
+                border: 0.5px solid var(--color-border);
+                background: var(--color-background-secondary);
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                color: var(--color-text);
+                cursor: pointer;
+                transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .actions-btn:hover {
+                border-color: var(--color-text);
+            }
+
+            .page {
+                display: none;
+            }
+            .page.active {
+                display: block;
+                animation: fadeIn 0.2s ease;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+
+            /* ── SCROLLBAR (from index.css) ──────────────────────────────────── */
+            ::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            ::-webkit-scrollbar-track {
+                background-color: #cbd2d9;
+                border-radius: 3px;
+            }
+            ::-webkit-scrollbar-thumb {
+                background-color: #7b8794;
+                border-radius: 3px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background-color: #616e7c;
+            }
+
+            /* ── GRID LAYOUTS ─────────────────────────────────────────────────── */
+            .row {
+                display: grid;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            .row.cols-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .row.cols-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .row.cols-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+            .row.cols-split {
+                grid-template-columns: 1fr 1.5fr;
+            }
+            .row.full {
+                grid-template-columns: 1fr;
+            }
+
+            /* ── TILES / CARDS (.tile from style guide) ───────────────────────── */
+            .card {
+                flex-shrink: 0;
+                border-radius: 5px;
+                border: 0.5px solid var(--color-border-card);
+                box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.03);
+                background: var(--color-card-background);
+                padding: 20px;
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 14px;
+            }
+
+            /* Card title: .text-subtitle (1rem, 600, DM Sans) */
+            .card-title {
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.875rem;
+                font-weight: 500;
+                letter-spacing: -0.01em;
+                color: var(--color-text-accent);
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .card-title-icon {
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                border: 1px solid var(--color-text-accent);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 10px;
+                color: var(--color-text-accent);
+                cursor: help;
+                flex-shrink: 0;
+            }
+
+            .card-menu {
+                font-size: 14px;
+                cursor: pointer;
+                color: var(--color-border);
+                letter-spacing: 2px;
+            }
+
+            /* ── KPI CARD ─────────────────────────────────────────────────────── */
+            .kpi-card {
+                padding: 12px 18px;
+                display: flex;
+                flex-direction: column;
+                min-height: 160px;
+            }
+            .kpi-card .card-header {
+                margin-bottom: 6px;
+                flex-shrink: 0;
+            }
+            .kpi-card .card-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                gap: 4px;
+            }
+
+            /* KPI value: large DM Sans bold */
+            .kpi-value {
+                font-family: "DM Sans", sans-serif;
+                font-size: 1.6rem;
+                font-weight: 700;
+                letter-spacing: -0.02em;
+                line-height: 1.1;
+                color: var(--color-text);
+            }
+
+            /* KPI label: .text-caption (Montserrat 0.75rem 500) */
+            .kpi-label {
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                color: var(--color-text-accent);
+            }
+
+            /* Change badge — bordered, .text-caption size */
+            .change-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                border: 0.5px solid;
+                border-radius: 5px;
+                padding: 2px 8px;
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                width: fit-content;
+            }
+
+            .change-badge.up {
+                border-color: var(--color-success);
+                color: var(--color-success);
+            }
+            .change-badge.down {
+                border-color: var(--color-danger);
+                color: var(--color-danger);
+            }
+            .change-badge.neutral {
+                border-color: var(--color-primary);
+                color: var(--color-primary);
+            }
+
+            /* from-period text: .text-caption muted */
+            .from-period {
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                letter-spacing: -0.02em;
+                color: var(--color-text-accent);
+            }
+
+            /* ── CHART CONTAINERS ─────────────────────────────────────────────── */
+            .chart-container {
+                width: 100%;
+                height: 300px;
+            }
+            .gauge-container {
+                width: 100%;
+                height: 210px;
+            }
+            .donut-container {
+                width: 100%;
+                height: 210px;
+            }
+            .histogram-container {
+                width: 100%;
+                height: 260px;
+            }
+            .area-chart-container {
+                width: 100%;
+                height: 260px;
+            }
+
+            /* Distribution chart spanning 2 grid rows — fills card height */
+            .span-chart-fill {
+                width: 100%;
+                flex: 1;
+                min-height: 320px;
+            }
+            /* Ensure span cards are flex so the chart div can stretch */
+            .card.span-card {
+                display: flex;
+                flex-direction: column;
+            }
+            .card.span-card .card-header {
+                flex-shrink: 0;
+            }
+
+            /* ── STAGES PIPELINE ──────────────────────────────────────────────── */
+            .stages-container {
+                padding: 12px 0 8px;
+                display: flex;
+                align-items: flex-start;
+                position: relative;
+            }
+            .stages-container::before {
+                content: "";
+                position: absolute;
+                top: 31px;
+                left: 18px;
+                right: 18px;
+                height: 1.5px;
+                background: var(--stages-line-bg, #e5e7eb);
+                z-index: 0;
+            }
+            .stage {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                position: relative;
+                z-index: 1;
+            }
+            .stage-icon-wrap {
+                width: 38px;
+                height: 38px;
+                border-radius: 50%;
+                border: 1.5px solid currentColor;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 10px;
+                flex-shrink: 0;
+                position: relative;
+                z-index: 1;
+            }
+            .stage-icon-wrap svg {
+                width: 18px;
+                height: 18px;
+                stroke: currentColor;
+                fill: none;
+                stroke-width: 1.8;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+            .stage-info {
+                width: 100%;
+            }
+            .stage-name {
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: #616e7c;
+                letter-spacing: -0.01em;
+            }
+            .stage-value {
+                font-family: "DM Sans", sans-serif;
+                font-size: 1.25rem;
+                font-weight: 700;
+                color: var(--color-text);
+                margin-top: 2px;
+                letter-spacing: -0.02em;
+            }
+            .stage-desc {
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.7rem;
+                font-weight: 500;
+                color: var(--color-text-accent);
+                margin-top: 2px;
+            }
+
+            /* ── TABLE ────────────────────────────────────────────────────────── */
+            .table-container {
+                width: 100%;
+                overflow-x: auto;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            table thead {
+                border-bottom: 0.5px solid var(--color-border-card);
+            }
+            table th {
+                text-align: left;
+                padding: 10px 12px;
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 600;
+                color: var(--color-text);
+                background-color: var(--color-background-secondary);
+                letter-spacing: -0.01em;
+            }
+            table td {
+                padding: 10px 12px;
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                color: var(--color-text-accent);
+                border-bottom: 0.5px solid var(--color-border-card);
+                letter-spacing: -0.02em;
+            }
+
+            .status-badge {
+                display: inline-block;
+                padding: 3px 10px;
+                border-radius: 5px;
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.7rem;
+                font-weight: 500;
+            }
+            .status-badge.critical {
+                background-color: var(--color-danger-50);
+                color: var(--color-danger);
+            }
+            .status-badge.warning {
+                background-color: #fef8ee;
+                color: var(--color-warning);
+            }
+            .status-badge.caution {
+                background-color: rgba(241, 184, 109, 0.12);
+                color: #d9681d;
+            }
+            .status-badge.info {
+                background-color: var(--color-primary-50);
+                color: var(--color-primary);
+            }
+            .status-badge.healthy {
+                background-color: var(--color-success-100);
+                color: var(--color-success);
+            }
+
+            /* ── TEAMS OVERVIEW TABLE CELL STYLES ─────────────────────────────── */
+            /* Active Members progress bar */
+            .member-cell {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+            .member-bar-wrap {
+                width: 100px;
+                height: 5px;
+                border-radius: 3px;
+                background: #ebebeb;
+                overflow: hidden;
+            }
+            .member-bar-fill {
+                height: 100%;
+                border-radius: 3px;
+                background: var(--color-primary);
+            }
+            .member-bar-label {
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.65rem;
+                font-weight: 500;
+                color: var(--color-text-accent);
+            }
+
+            /* WIP badge */
+            .wip-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 24px;
+                height: 22px;
+                padding: 0 7px;
+                border-radius: 4px;
+                background: var(--color-primary-100);
+                color: var(--color-primary);
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 700;
+            }
+            .wip-badge.nonzero {
+                background: var(--color-primary);
+                color: #fff;
+            }
+
+            /* Cycle time / throughput colored text */
+            .metric-warn {
+                color: #d9681d;
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+            .metric-danger {
+                color: var(--color-danger);
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+            .metric-muted {
+                color: var(--color-text-accent);
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+            }
+
+            /* Work activities mini-bar */
+            .work-acts {
+                display: flex;
+                align-items: center;
+                gap: 2px;
+                height: 10px;
+                border-radius: 3px;
+                overflow: hidden;
+                min-width: 60px;
+            }
+            .work-seg {
+                height: 100%;
+            }
+
+            /* Alerts badge in table */
+            .alert-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 24px;
+                height: 22px;
+                padding: 0 7px;
+                border-radius: 4px;
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 700;
+                background: var(--color-primary-100);
+                color: var(--color-primary);
+            }
+            .alert-badge.has-alerts {
+                background: var(--color-danger-100);
+                color: var(--color-danger);
+            }
+
+            .alert-list {
+                list-style: none;
+                overflow-y: auto;
+                max-height: 200px;
+            }
+            .alert-item {
+                padding: 8px 4px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                border-bottom: 0.5px solid #f0f1f3;
+                background: transparent;
+            }
+            .alert-item:last-child {
+                border-bottom: none;
+            }
+            /* Square count badge on the left */
+            .alert-count-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 22px;
+                height: 22px;
+                border-radius: 4px;
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.72rem;
+                font-weight: 700;
+                flex-shrink: 0;
+                letter-spacing: 0;
+            }
+            .alert-count-badge.nonzero {
+                background-color: var(--color-danger-50);
+                color: var(--color-danger);
+            }
+            .alert-count-badge.zero {
+                background-color: var(--color-primary-50);
+                color: var(--color-primary);
+            }
+            .alert-item-name {
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.75rem;
+                font-weight: 500;
+                color: var(--color-text);
+                letter-spacing: -0.01em;
+            }
+
+            /* ── USE CASES PANEL ──────────────────────────────────────────────── */
+            .use-cases-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.3);
+                z-index: 99;
+            }
+            .use-cases-overlay.active {
+                display: block;
+            }
+
+            .use-cases-panel {
+                position: fixed;
+                right: 0;
+                top: 0;
+                height: 100vh;
+                width: 380px;
+                background-color: var(--color-background);
+                box-shadow: -4px 0 24px rgba(0, 0, 0, 0.1);
+                z-index: 100;
+                display: none;
+                flex-direction: column;
+                overflow-y: auto;
+                transform: translateX(100%);
+                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .use-cases-panel.active {
+                display: flex;
+                transform: translateX(0);
+            }
+
+            .panel-header {
+                padding: 20px 24px;
+                border-bottom: 0.5px solid var(--color-border-card);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-shrink: 0;
+            }
+            .panel-header h2 {
+                font-family: "DM Sans", sans-serif;
+                font-size: 1rem;
+                font-weight: 600;
+                letter-spacing: -0.02em;
+                color: var(--color-text);
+            }
+
+            .close-btn {
+                background: none;
+                border: none;
+                font-size: 18px;
+                cursor: pointer;
+                color: var(--color-text-accent);
+                width: 28px;
+                height: 28px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 5px;
+                transition: all 0.15s ease;
+            }
+            .close-btn:hover {
+                background-color: var(--color-background-secondary);
+                color: var(--color-text);
+            }
+
+            .use-case-item {
+                padding: 14px 24px;
+                border-bottom: 0.5px solid var(--color-background-secondary);
+                cursor: pointer;
+                transition: background-color 0.15s ease;
+            }
+            .use-case-item:hover {
+                background-color: var(--color-background-secondary);
+            }
+            .use-case-title {
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.875rem;
+                font-weight: 600;
+                letter-spacing: -0.01em;
+                color: var(--color-text);
+                margin-bottom: 4px;
+            }
+            .use-case-description {
+                font-family: "Montserrat", sans-serif;
+                font-size: 0.7rem;
+                font-weight: 500;
+                color: var(--color-text-accent);
+                line-height: 1.4;
+            }
+
+            /* ── HIGHLIGHT TOOLTIP ────────────────────────────────────────────── */
+            .highlight-tooltip {
+                position: fixed;
+                top: 72px;
+                left: 248px;
+                right: 28px;
+                background-color: var(--color-primary);
+                color: #fff;
+                padding: 12px 18px;
+                border-radius: 5px;
+                font-family: "DM Sans", sans-serif;
+                font-size: 0.8rem;
+                font-weight: 500;
+                z-index: 50;
+                box-shadow: 0 4px 16px rgba(87, 66, 241, 0.25);
+                animation: slideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* ── SCROLLBAR ────────────────────────────────────────────────────── */
+            ::-webkit-scrollbar {
+                width: 5px;
+                height: 5px;
+            }
+            ::-webkit-scrollbar-track {
+                background: var(--color-background-secondary);
+            }
+            ::-webkit-scrollbar-thumb {
+                background: var(--color-border);
+                border-radius: 4px;
+            }
+            ::-webkit-scrollbar-thumb:hover {
+                background: var(--color-text-accent);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- SIDEBAR -->
+            <div class="sidebar">
+                <div class="logo-section">
+                    <svg width="108" height="32" viewBox="0 0 10029 2938" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M2279.45 2729.96C2332.57 2822.02 2266.17 2937.11 2159.93 2937.11H1186.99C1080.76 2937.11 1014.36 2822.02 1067.48 2729.96L1553.95 1886.77C1607.06 1794.7 1739.86 1794.7 1792.98 1886.77L2279.45 2729.96Z"
+                            fill="#667FFF"
+                        />
+                        <path
+                            d="M1513.83 1402.92C1538.48 1445.65 1538.48 1498.3 1513.83 1541.03L886.69 2628.03C833.571 2720.1 700.774 2720.1 647.655 2628.03L18.4893 1537.51C-6.16313 1494.78 -6.16311 1442.13 18.4894 1399.41L645.626 312.407C698.745 220.338 831.542 220.338 884.661 312.407L1513.83 1402.92Z"
+                            fill="#99AAFF"
+                        />
+                        <path
+                            d="M3326.42 1399.85C3351.07 1442.58 3351.07 1495.23 3326.42 1537.96L2698.39 2626.5C2645.27 2718.57 2512.47 2718.57 2459.35 2626.5L1063.53 207.156C1010.41 115.087 1076.81 0 1183.05 0H2439.1C2488.41 0 2533.97 26.3224 2558.62 69.0519L3326.42 1399.85Z"
+                            fill="#667FFF"
+                        />
+                        <path d="M4324.24 1957.88V536.415H4490.17V1957.88H4324.24Z" fill="black" />
+                        <path d="M4476.75 1792.03H4995.06V1957.95H4476.75V1792.03Z" fill="black" />
+                        <path
+                            d="M5541.84 1982.2C5449.72 1982.2 5366.81 1961.15 5293.06 1919.11C5219.32 1876.9 5161.01 1817.31 5118.25 1740.29C5075.6 1663.32 5054.28 1572.79 5054.28 1468.83C5054.28 1364.87 5075.93 1274.41 5119.36 1197.38C5162.73 1120.41 5221.59 1060.87 5295.95 1018.78C5370.25 976.572 5453.49 955.469 5545.62 955.469C5637.86 955.469 5720.76 976.572 5794.4 1018.78C5868.14 1060.87 5926.4 1120.41 5969.21 1197.38C6011.97 1274.41 6033.4 1364.87 6033.4 1468.83C6033.4 1572.79 6011.64 1663.32 5968.1 1740.29C5924.67 1817.31 5865.81 1876.9 5791.51 1919.11C5717.15 1961.15 5633.91 1982.2 5541.84 1982.2ZM5541.84 1840.03C5598.37 1840.03 5650.96 1826.25 5699.55 1798.71C5748.25 1771.05 5787.73 1729.57 5817.94 1674.31C5848.26 1618.94 5863.48 1550.47 5863.48 1468.83C5863.48 1387.25 5848.65 1318.83 5819.05 1263.58C5789.4 1208.37 5750.25 1166.89 5701.55 1139.18C5652.96 1111.52 5600.98 1097.64 5545.62 1097.64C5489.03 1097.64 5436.39 1111.52 5387.69 1139.18C5339.1 1166.89 5299.61 1208.37 5269.29 1263.58C5239.09 1318.83 5223.98 1387.25 5223.98 1468.83C5223.98 1550.47 5239.09 1618.94 5269.29 1674.31C5299.61 1729.57 5338.82 1771.05 5386.8 1798.71C5434.78 1826.25 5486.42 1840.03 5541.84 1840.03Z"
+                            fill="black"
+                        />
+                        <path
+                            d="M6542.45 1650.54C6487.2 1650.54 6436.56 1643.32 6390.52 1628.77L6291.68 1721.63C6306.17 1732.18 6324.22 1741.06 6345.87 1748.28C6367.64 1755.39 6398.85 1761.95 6439.61 1767.83C6480.48 1773.77 6537.79 1780.05 6611.54 1786.71C6743.14 1795.93 6837.27 1826.2 6893.86 1877.57C6950.39 1928.83 6978.71 1995.86 6978.71 2078.83C6978.71 2135.36 6963.21 2189.29 6932.28 2240.54C6901.3 2291.91 6853.93 2334.06 6790.12 2366.94C6726.26 2399.93 6644.41 2416.48 6544.45 2416.48C6456.33 2416.48 6377.97 2404.93 6309.45 2381.82C6241.03 2358.83 6187.72 2323.96 6149.52 2277.2C6111.42 2230.55 6092.43 2171.68 6092.43 2100.6C6092.43 2063.72 6102.26 2023.85 6121.97 1981.09C6141.63 1938.32 6178.5 1897.89 6232.59 1859.8C6203.55 1847.97 6178.84 1835.14 6158.4 1821.37C6138.08 1807.48 6119.36 1791.99 6102.2 1774.94V1729.4L6270.13 1563.69C6192.39 1497.82 6153.51 1410.97 6153.51 1303.12C6153.51 1238.59 6168.62 1180 6198.83 1127.4C6229.15 1074.7 6273.29 1032.88 6331.21 1001.9C6389.08 970.963 6459.49 955.469 6542.45 955.469C6598.99 955.469 6650.3 963.41 6696.39 979.238H7057.78V1103.64L6874.09 1111.41C6912.29 1166.83 6931.4 1230.7 6931.4 1303.12C6931.4 1367.54 6915.9 1426.13 6884.97 1478.83C6853.99 1531.42 6809.89 1573.18 6752.59 1604.12C6695.39 1635.1 6625.36 1650.54 6542.45 1650.54ZM6542.45 1514.15C6612.2 1514.15 6667.79 1496.1 6709.27 1459.95C6750.7 1423.85 6771.47 1371.54 6771.47 1303.12C6771.47 1235.92 6750.7 1184.22 6709.27 1148.06C6667.79 1111.8 6612.2 1093.64 6542.45 1093.64C6471.37 1093.64 6415.07 1111.8 6373.64 1148.06C6332.16 1184.22 6311.44 1235.92 6311.44 1303.12C6311.44 1371.54 6332.16 1423.85 6373.64 1459.95C6415.07 1496.1 6471.37 1514.15 6542.45 1514.15ZM6254.36 2084.82C6254.36 2150.58 6281.96 2199.56 6337.21 2231.88C6392.41 2264.15 6461.49 2280.31 6544.45 2280.31C6626.03 2280.31 6691.5 2262.54 6740.81 2226.99C6790.12 2191.45 6814.78 2144.02 6814.78 2084.82C6814.78 2042.62 6797.68 2006.02 6763.47 1975.09C6729.26 1944.32 6666.07 1926.22 6574 1920.89C6501.58 1915.72 6439.06 1909.11 6386.52 1901.12C6332.6 1930.16 6297.06 1961.37 6279.9 1994.86C6262.86 2028.46 6254.36 2058.45 6254.36 2084.82Z"
+                            fill="black"
+                        />
+                        <path
+                            d="M7237.1 761.986C7204.23 761.986 7176.91 751.212 7155.14 729.554C7133.48 707.784 7122.71 680.461 7122.71 647.584C7122.71 616.041 7133.48 589.773 7155.14 568.725C7176.91 547.566 7204.23 536.959 7237.1 536.959C7268.76 536.959 7295.8 547.566 7318.18 568.725C7340.5 589.773 7351.72 616.041 7351.72 647.584C7351.72 680.461 7340.5 707.784 7318.18 729.554C7295.8 751.212 7268.76 761.986 7237.1 761.986ZM7154.25 1958.43V979.238H7320.18V1958.43H7154.25Z"
+                            fill="black"
+                        />
+                        <path d="M7499.65 1958.43V536.959H7665.58V1958.43H7499.65Z" fill="black" />
+                        <path
+                            d="M7929.89 761.986C7897.01 761.986 7869.69 751.212 7847.92 729.554C7826.27 707.784 7815.49 680.461 7815.49 647.584C7815.49 616.041 7826.27 589.773 7847.92 568.725C7869.69 547.566 7897.01 536.959 7929.89 536.959C7961.54 536.959 7988.58 547.566 8010.96 568.725C8033.29 589.773 8044.5 616.041 8044.5 647.584C8044.5 680.461 8033.29 707.784 8010.96 729.554C7988.58 751.212 7961.54 761.986 7929.89 761.986ZM7847.03 1958.43V979.238H8012.96V1958.43H7847.03Z"
+                            fill="black"
+                        />
+                        <path
+                            d="M8642.46 1982.2C8549 1982.2 8465.09 1960.76 8390.79 1918C8316.43 1875.24 8257.85 1815.31 8215.09 1738.29C8172.44 1661.32 8151.12 1571.46 8151.12 1468.83C8151.12 1366.2 8172.44 1276.4 8215.09 1199.38C8257.85 1122.41 8316.43 1062.48 8390.79 1019.67C8465.09 976.905 8549 955.469 8642.46 955.469C8758.24 955.469 8855.97 985.791 8935.66 1046.32C9015.29 1106.91 9065.66 1187.83 9086.71 1289.12H8917C8903.79 1228.7 8871.52 1181.72 8820.16 1148.06C8768.9 1114.46 8709.09 1097.64 8640.68 1097.64C8585.26 1097.64 8533.23 1111.52 8484.53 1139.18C8435.94 1166.89 8396.45 1208.37 8366.13 1263.58C8335.92 1318.83 8320.82 1387.25 8320.82 1468.83C8320.82 1550.47 8335.92 1618.94 8366.13 1674.31C8396.45 1729.57 8435.94 1771.33 8484.53 1799.6C8533.23 1827.92 8585.26 1842.03 8640.68 1842.03C8709.09 1842.03 8768.9 1825.26 8820.16 1791.6C8871.52 1758 8903.79 1710.3 8917 1648.54H9086.71C9066.99 1747.17 9016.96 1827.48 8936.55 1889.34C8856.25 1951.26 8758.24 1982.2 8642.46 1982.2Z"
+                            fill="black"
+                        />
+                        <path
+                            d="M9534.79 1982.2C9453.16 1982.2 9385.35 1968.31 9331.32 1940.66C9277.4 1913 9237.25 1876.12 9210.93 1830.03C9184.55 1783.99 9171.39 1734.01 9171.39 1680.09C9171.39 1580.12 9209.49 1503.21 9285.78 1449.28C9362.2 1395.25 9466.21 1368.2 9597.87 1368.2H9862.42V1356.21C9862.42 1270.8 9839.99 1205.99 9795.12 1161.84C9750.36 1117.74 9690.55 1095.64 9615.64 1095.64C9551.06 1095.64 9495.36 1111.8 9448.6 1144.06C9401.96 1176.39 9372.75 1223.48 9361.09 1285.35H9191.16C9197.82 1214.26 9221.87 1154.39 9263.35 1105.63C9304.78 1056.93 9356.42 1019.78 9418.17 994.121C9480.03 968.353 9545.89 955.469 9615.64 955.469C9752.47 955.469 9855.37 992.066 9924.39 1065.21C9993.53 1138.23 10028.1 1235.25 10028.1 1356.21V1958.43H9880.19L9870.2 1782.72C9842.65 1837.97 9802.23 1885.07 9748.92 1924C9695.61 1962.76 9624.19 1982.2 9534.79 1982.2ZM9560.33 1842.03C9623.53 1842.03 9677.84 1825.59 9723.15 1792.71C9768.57 1759.72 9803.17 1716.91 9826.88 1664.32C9850.54 1611.61 9862.42 1556.3 9862.42 1498.38V1496.38H9611.64C9514.35 1496.38 9445.55 1513.2 9405.29 1546.8C9365.14 1580.46 9345.09 1622.22 9345.09 1672.09C9345.09 1723.52 9363.81 1764.67 9401.29 1795.6C9438.88 1826.59 9491.92 1842.03 9560.33 1842.03Z"
+                            fill="black"
+                        />
+                    </svg>
+                </div>
+
+                <div class="nav-item" data-page="page-ai-usage">AI Usage</div>
+                <div class="nav-item active" data-page="page-teams-overview">Teams Overview</div>
+                <div class="nav-item" data-page="page-team-health">Team Health</div>
+                <div class="nav-item" data-page="page-ticket-throughput">Ticket Throughput</div>
+                <div class="nav-item" data-page="page-code-throughput">Code Throughput</div>
+                <div class="nav-item" data-page="page-review-status">Review Status</div>
+                <div class="nav-item" data-page="page-ci-overview">CI Overview</div>
+            </div>
+
+            <!-- MAIN CONTENT -->
+            <div class="main">
+                <!-- TOPBAR -->
+                <div class="topbar">
+                    <div class="topbar-filters">
+                        <!-- Time Period Dropdown -->
+                        <div class="dropdown-wrapper">
+                            <button class="dropdown-button" id="timePeriodBtn">Trailing 7 Days ▼</button>
+                            <div class="dropdown-menu" id="timePeriodMenu">
+                                <div class="dropdown-item selected" data-value="7">Trailing 7 Days</div>
+                                <div class="dropdown-item" data-value="30">Trailing 30 Days</div>
+                                <div class="dropdown-item" data-value="90">Trailing 90 Days</div>
+                            </div>
+                        </div>
+                        <!-- Teams Dropdown -->
+                        <div class="dropdown-wrapper">
+                            <button class="dropdown-button" id="teamsBtn">Frontend Web ▼</button>
+                            <div class="dropdown-menu" id="teamsMenu">
+                                <div class="dropdown-item selected" data-value="frontend">Frontend Web</div>
+                                <div class="dropdown-item" data-value="backend">Backend API</div>
+                            </div>
+                        </div>
+                        <!-- Use Cases Button -->
+                        <button class="use-cases-btn" onclick="openUseCases()">✨ Use Cases</button>
+                    </div>
+                </div>
+
+                <!-- CONTENT AREA -->
+                <div class="content">
+                    <div class="page-title" id="pageTitle">AI Usage</div>
+                    <br />
+                    <br />
+                    <br />
+
+                    <!-- PAGE: AI USAGE -->
+                    <div id="page-ai-usage" class="page active">
+                        <!-- Row 1: Gauge + 2 donuts -->
+                        <div class="row cols-3">
+                            <!-- Users Using AI — half-circle gauge -->
+                            <div class="card" style="display: flex; flex-direction: column">
+                                <div class="card-header">
+                                    <div class="card-title">Users Using AI</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="aiUsersGauge" class="gauge-container" style="position: relative"></div>
+                            </div>
+
+                            <!-- Acceptance Rate — donut (Rejection vs Acceptance) -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Acceptance Rate</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="aiAcceptanceDonut" class="donut-container"></div>
+                            </div>
+
+                            <!-- Non AI-Assisted vs AI-Assisted PRs — donut -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Non AI-Assisted PRs vs AI-Assisted PRs</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="aiPRsDonut" class="donut-container"></div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Generated vs Committed AI LoC — full-width grouped bar -->
+                        <div class="row full">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Generated vs Committed AI LoC</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="aiLoCChart" class="chart-container"></div>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Team AI Usage — metrics as columns, teams as rows -->
+                        <div class="row full">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Team AI Usage</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Team</th>
+                                                <th>Users Using AI</th>
+                                                <th>Acceptance Rate</th>
+                                                <th>AI-Assisted PRs</th>
+                                                <th>Non AI-Assisted PRs</th>
+                                                <th>Generated LoC</th>
+                                                <th>Committed LoC</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="teamAIUsageTbody"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAGE: TEAMS OVERVIEW -->
+                    <div id="page-teams-overview" class="page">
+                        <div class="row cols-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Avg Active Members</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="avgActiveMembersGauge" class="gauge-container"></div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Coding Cycle Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="codingCycleTime">14 days</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="codingCycleTimePct" data-kpi-dir="up">↑ 180%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Ticket Lead Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="ticketLeadTime">3 weeks</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge down" data-kpi-badge="ticketLeadTimePct" data-kpi-dir="down">↓ 20%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row cols-3">
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Weekly Team Throughput</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="weeklyThroughput">5</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="weeklyThroughputPct" data-kpi-dir="up">↑ 65%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Investment Breakdown</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="investmentBreakdownDonut" class="donut-container"></div>
+                            </div>
+                            <div class="card" style="display: flex; flex-direction: column">
+                                <div class="card-header">
+                                    <div class="card-title">Team Alerts</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <ul class="alert-list" id="teamAlertsList">
+                                    <li class="alert-item"><span class="alert-count-badge nonzero">3</span><span class="alert-item-name">Slow Pickup</span></li>
+                                    <li class="alert-item">
+                                        <span class="alert-count-badge nonzero">2</span><span class="alert-item-name">Sprint Overrun</span>
+                                    </li>
+                                    <li class="alert-item"><span class="alert-count-badge nonzero">1</span><span class="alert-item-name">Stale PRs</span></li>
+                                    <li class="alert-item">
+                                        <span class="alert-count-badge nonzero">1</span><span class="alert-item-name">Long Running PRs</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row full">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Teams Overview</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="table-container">
+                                    <table id="teamsOverviewTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Team <span style="font-size: 10px; color: #adadad">↕</span></th>
+                                                <th>Active Members</th>
+                                                <th>WIP</th>
+                                                <th>Cycle Time</th>
+                                                <th>Throughput</th>
+                                                <th>Work Activities</th>
+                                                <th>Alerts</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="teamsOverviewTbody">
+                                            <!-- Populated by initTeamsOverviewCharts() -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAGE: TEAM HEALTH -->
+                    <div id="page-team-health" class="page">
+                        <div class="row cols-3">
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Active Contributors</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="activeContributors">15.6</div>
+                                    <div class="kpi-label">Active Members</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="activeContributorsPct" data-kpi-dir="up">↑ 18%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Overloaded Contributors</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="overloadedPct">7.2%</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="overloadedPctVal" data-kpi-dir="up">↑ 8%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Contributor Load</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="contributorLoad">2.6</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="contributorLoadPct" data-kpi-dir="up">↑ 28%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row cols-2">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Team Overload</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="teamOverloadChart" class="chart-container"></div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Review Distribution</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="reviewDistributionChart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAGE: TICKET THROUGHPUT -->
+                    <div id="page-ticket-throughput" class="page">
+                        <div class="row cols-split">
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Ticket Throughput</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="ticketThroughput">5.5</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="ticketThroughputPct" data-kpi-dir="up">↑ 65%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Stages</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="stages-container" style="--stages-line-bg: linear-gradient(to right, #69ad75 0%, #69ad75 50%, #d35e5e 100%)">
+                                    <!-- Backlog: green, stacked-layers icon -->
+                                    <div class="stage" style="color: #69ad75">
+                                        <div class="stage-icon-wrap" style="background: #edf5ee">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                                <path d="M2 17l10 5 10-5" />
+                                                <path d="M2 12l10 5 10-5" />
+                                            </svg>
+                                        </div>
+                                        <div class="stage-info">
+                                            <div class="stage-name">Backlog</div>
+                                            <div class="stage-value" data-kpi="stageBacklog">18 hrs</div>
+                                            <div class="stage-desc">Time in Backlog</div>
+                                        </div>
+                                    </div>
+                                    <!-- Pickup: green, DNA-helix icon -->
+                                    <div class="stage" style="color: #69ad75">
+                                        <div class="stage-icon-wrap" style="background: #edf5ee">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <path d="M5 4C8 4 11 8 12 12C13 16 16 20 19 20" />
+                                                <path d="M19 4C16 4 13 8 12 12C11 16 8 20 5 20" />
+                                            </svg>
+                                        </div>
+                                        <div class="stage-info">
+                                            <div class="stage-name">Pickup</div>
+                                            <div class="stage-value" data-kpi="stagePickup">16 hrs</div>
+                                            <div class="stage-desc">Wait time to start</div>
+                                        </div>
+                                    </div>
+                                    <!-- Resolution: red, check-square icon -->
+                                    <div class="stage" style="color: #d35e5e">
+                                        <div class="stage-icon-wrap" style="background: #faecec">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <polyline points="9 11 12 14 22 4" />
+                                                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                            </svg>
+                                        </div>
+                                        <div class="stage-info">
+                                            <div class="stage-name">Resolution</div>
+                                            <div class="stage-value" data-kpi="stageResolution">36 days</div>
+                                            <div class="stage-desc">Time worked on</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1.5fr; grid-template-rows: auto auto; gap: 20px; margin-bottom: 20px">
+                            <!-- Left col row 1: Lead Time KPI -->
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Lead Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="leadTime">3 weeks</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge down" data-kpi-badge="leadTimePct" data-kpi-dir="down">↓ 20%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right col spans both rows: Distribution of Lead Time -->
+                            <div class="card span-card" style="grid-row: span 2">
+                                <div class="card-header">
+                                    <div class="card-title">Distribution of Lead Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="leadTimeDistributionChart" class="span-chart-fill"></div>
+                            </div>
+                            <!-- Left col row 2: Investment Breakdown -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Investment Breakdown</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="ticketInvestmentDonut" class="donut-container"></div>
+                            </div>
+                        </div>
+                        <div class="row full">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Backlog Trend</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="backlogTrendChart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAGE: CODE THROUGHPUT -->
+                    <div id="page-code-throughput" class="page">
+                        <div class="row cols-split">
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Code Throughput</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="codeThroughput">3</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="codeThroughputPct" data-kpi-dir="up">↑ 165%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Stages</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div
+                                    class="stages-container"
+                                    style="--stages-line-bg: linear-gradient(to right, #d35e5e 0%, #69ad75 33%, #d35e5e 67%, #e5a04b 100%)"
+                                >
+                                    <!-- Development: red, file-text icon -->
+                                    <div class="stage" style="color: #d35e5e">
+                                        <div class="stage-icon-wrap" style="background: #faecec">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                <polyline points="14 2 14 8 20 8" />
+                                                <line x1="16" y1="13" x2="8" y2="13" />
+                                                <line x1="16" y1="17" x2="8" y2="17" />
+                                                <line x1="10" y1="9" x2="8" y2="9" />
+                                            </svg>
+                                        </div>
+                                        <div class="stage-info">
+                                            <div class="stage-name">Development</div>
+                                            <div class="stage-value" data-kpi="codeDev">12 days</div>
+                                            <div class="stage-desc">Time from first commit</div>
+                                        </div>
+                                    </div>
+                                    <!-- Response: green, DNA-helix icon -->
+                                    <div class="stage" style="color: #69ad75">
+                                        <div class="stage-icon-wrap" style="background: #edf5ee">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <path d="M5 4C8 4 11 8 12 12C13 16 16 20 19 20" />
+                                                <path d="M19 4C16 4 13 8 12 12C11 16 8 20 5 20" />
+                                            </svg>
+                                        </div>
+                                        <div class="stage-info">
+                                            <div class="stage-name">Response</div>
+                                            <div class="stage-value" data-kpi="codeResponse">11 hrs</div>
+                                            <div class="stage-desc">Wait time until review</div>
+                                        </div>
+                                    </div>
+                                    <!-- Review: red, eye icon -->
+                                    <div class="stage" style="color: #d35e5e">
+                                        <div class="stage-icon-wrap" style="background: #faecec">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                                <circle cx="12" cy="12" r="3" />
+                                            </svg>
+                                        </div>
+                                        <div class="stage-info">
+                                            <div class="stage-name">Review</div>
+                                            <div class="stage-value" data-kpi="codeReview">7 days</div>
+                                            <div class="stage-desc">Review iteration time</div>
+                                        </div>
+                                    </div>
+                                    <!-- Integration: orange, rocket icon -->
+                                    <div class="stage" style="color: #e5a04b">
+                                        <div class="stage-icon-wrap" style="background: #fcf4e9">
+                                            <svg
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="1.8"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                            >
+                                                <path d="M12 2C9 6 9 10 9 13l3 3 3-3c0-3 0-7-3-11z" />
+                                                <circle cx="12" cy="9" r="1.5" />
+                                                <path d="M9 13l-2.5 3.5" />
+                                                <path d="M15 13l2.5 3.5" />
+                                            </svg>
+                                        </div>
+                                        <div class="stage-info">
+                                            <div class="stage-name">Integration</div>
+                                            <div class="stage-value" data-kpi="codeIntegration">1 day</div>
+                                            <div class="stage-desc">Time for merge</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1.5fr; grid-template-rows: auto auto; gap: 20px; margin-bottom: 20px">
+                            <!-- Left col row 1: Cycle Time KPI -->
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Cycle Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="cycleTime">8 days</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="cycleTimePct" data-kpi-dir="up">↑ 15%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Right col spans both rows: Distribution of Cycle Time -->
+                            <div class="card span-card" style="grid-row: span 2">
+                                <div class="card-header">
+                                    <div class="card-title">Distribution of Cycle Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="cycleTimeDistributionChart" class="span-chart-fill"></div>
+                            </div>
+                            <!-- Left col row 2: Work Focus -->
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Work Focus</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="workFocusDonut" class="donut-container"></div>
+                            </div>
+                        </div>
+                        <div class="row full">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Backlog Accumulation</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="backlogAccumulationChart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAGE: REVIEW STATUS -->
+                    <div id="page-review-status" class="page">
+                        <div class="row cols-3">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Current Review Status</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="currentReviewStatusDonut" class="donut-container"></div>
+                            </div>
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Review Distribution</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="reviewDistributionStatusDonut" class="donut-container"></div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Avg Response Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="avgResponseTime">1.4 days</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge down" data-kpi-badge="avgResponseTimePct" data-kpi-dir="down">↓ 40%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row cols-4">
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Merge Success</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="mergeSuccess">100%</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge neutral" data-kpi-badge="mergeSuccessPct" data-kpi-dir="neutral">→ 0%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Merge Outside Process</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="mergeOutside">4.0%</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge neutral" data-kpi-badge="mergeSuccessPct" data-kpi-dir="neutral">→ 0%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Avg Review Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="avgReviewTime">14 hours</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="avgReviewTimePct" data-kpi-dir="up">↑ 18%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Avg Review Cycles</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="avgReviewCycles">2</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge neutral" data-kpi-badge="avgReviewCyclesPct" data-kpi-dir="neutral">→ 0%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row full">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Pull Request Workflow</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="prWorkflowChart" style="height: 290px; width: 100%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAGE: CI OVERVIEW -->
+                    <div id="page-ci-overview" class="page">
+                        <div class="row cols-4">
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Total Builds</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="totalBuilds">1,240</div>
+                                    <div class="kpi-label">In total</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="totalBuildsPct" data-kpi-dir="up">↑ 45%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Build Reliability</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="reliability">92.8%</div>
+                                    <div class="kpi-label">Success rate</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="reliabilityPct" data-kpi-dir="up">↑ 2%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Build Speed</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="buildSpeed">50 sec</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge down" data-kpi-badge="buildSpeedPct" data-kpi-dir="down">↓ 58%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card kpi-card">
+                                <div class="card-header">
+                                    <div class="card-title">Recovery Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="kpi-value" data-kpi="recoveryTime">2 days</div>
+                                    <div class="kpi-label">On average</div>
+                                    <div style="display: flex; align-items: center; gap: 8px">
+                                        <div class="change-badge up" data-kpi-badge="recoveryTimePct" data-kpi-dir="up">↑ 440%</div>
+                                        <div class="from-period">from last <span class="period-days">30</span> days</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row full">
+                            <div class="card">
+                                <div class="card-header">
+                                    <div class="card-title">Build Results Over Time</div>
+                                    <div class="card-menu">≡</div>
+                                </div>
+                                <div id="buildResultChart" class="chart-container"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /content -->
+            </div>
+            <!-- /main -->
+        </div>
+        <!-- /container -->
+
+        <!-- USE CASES OVERLAY + PANEL -->
+        <div class="use-cases-overlay" id="use-cases-overlay" onclick="closeUseCases(event)"></div>
+        <div class="use-cases-panel" id="use-cases-panel">
+            <div class="panel-header">
+                <h2>Guided Use Cases</h2>
+                <button class="close-btn" onclick="closeUseCases()">✕</button>
+            </div>
+            <div id="use-cases-list"></div>
+        </div>
+
+        <script>
+            // ─── DATA ────────────────────────────────────────────────────────────────
+            const teamData = {
+                frontend: {
+                    aiActiveUsers: { 7: 6, 30: 10, 90: 14 },
+                    aiAcceptanceRate: { 7: 42, 30: 44, 90: 47 },
+                    aiAssistedPRs: { 7: 20, 30: 25, 90: 38 },
+                    activeMembers: { 7: 82, 30: 85, 90: 87 },
+                    codingCycleTime: { 7: "10 days", 30: "14 days", 90: "11 days" },
+                    codingCycleTimePct: { 7: 160, 30: 180, 90: 140 },
+                    ticketLeadTime: { 7: "2 weeks", 30: "3 weeks", 90: "2 weeks" },
+                    ticketLeadTimePct: { 7: 15, 30: 20, 90: 12 },
+                    weeklyThroughput: { 7: 4, 30: 5, 90: 5 },
+                    weeklyThroughputPct: { 7: 55, 30: 65, 90: 58 },
+                    activeContributors: { 7: "14.8", 30: "15.6", 90: "16.0" },
+                    activeContributorsPct: { 7: 12, 30: 18, 90: 20 },
+                    overloadedPct: { 7: "7.8", 30: "7.2", 90: "6.8" },
+                    overloadedPctVal: { 7: 12, 30: 8, 90: 6 },
+                    contributorLoad: { 7: "2.7", 30: "2.6", 90: "2.5" },
+                    contributorLoadPct: { 7: 32, 30: 28, 90: 24 },
+                    ticketThroughput: { 7: "1.8", 30: "2.1", 90: "2.4" },
+                    ticketThroughputPct: { 7: 12, 30: 8, 90: 15 },
+                    leadTime: { 7: "2 weeks", 30: "3 weeks", 90: "2 weeks" },
+                    leadTimePct: { 7: 15, 30: 20, 90: 12 },
+                    stageBacklog: { 7: "8 hrs", 30: "18 hrs", 90: "a day" },
+                    stagePickup: { 7: "6 hrs", 30: "16 hrs", 90: "a day" },
+                    stageResolution: { 7: "28 days", 30: "36 days", 90: "28 days" },
+                    codeThroughput: { 7: "4", 30: "3", 90: "5" },
+                    codeThroughputPct: { 7: 32, 30: 18, 90: 28 },
+                    cycleTime: { 7: "4 days", 30: "8 days", 90: "11 days" },
+                    cycleTimePct: { 7: -12, 30: 15, 90: 22 },
+                    codeDev: { 7: "8 days", 30: "12 days", 90: "9 days" },
+                    codeResponse: { 7: "8 hrs", 30: "11 hrs", 90: "9 hrs" },
+                    codeReview: { 7: "5 days", 30: "7 days", 90: "6 days" },
+                    codeIntegration: { 7: "1 day", 30: "1 day", 90: "1 day" },
+                    avgResponseTime: { 7: "1.2 days", 30: "1.4 days", 90: "1.5 days" },
+                    avgResponseTimePct: { 7: 35, 30: 40, 90: 32 },
+                    mergeSuccess: { 7: "100", 30: "100", 90: "100" },
+                    mergeSuccessPct: { 7: 0, 30: 0, 90: 0 },
+                    mergeOutside: { 7: "3.0", 30: "4.0", 90: "4.5" },
+                    avgReviewTime: { 7: "12 hours", 30: "14 hours", 90: "15 hours" },
+                    avgReviewTimePct: { 7: 12, 30: 18, 90: 22 },
+                    avgReviewCycles: { 7: "2", 30: "2", 90: "2" },
+                    avgReviewCyclesPct: { 7: 0, 30: 0, 90: 0 },
+                    totalBuilds: { 7: "295", 30: "1,240", 90: "3,570" },
+                    totalBuildsPct: { 7: 38, 30: 45, 90: 48 },
+                    reliability: { 7: "93.5", 30: "92.8", 90: "93.5" },
+                    reliabilityPct: { 7: 3, 30: 2, 90: 4 },
+                    buildSpeed: { 7: "40 sec", 30: "50 sec", 90: "38 sec" },
+                    buildSpeedPct: { 7: 50, 30: 58, 90: 45 },
+                    recoveryTime: { 7: "1 day", 30: "2 days", 90: "2.5 days" },
+                    recoveryTimePct: { 7: 380, 30: 440, 90: 350 },
+                },
+                backend: {
+                    aiActiveUsers: { 7: 4, 30: 6, 90: 8 },
+                    aiAcceptanceRate: { 7: 35, 30: 38, 90: 40 },
+                    aiAssistedPRs: { 7: 12, 30: 16, 90: 18 },
+                    activeMembers: { 7: 78, 30: 82, 90: 84 },
+                    codingCycleTime: { 7: "14 days", 30: "18 days", 90: "15 days" },
+                    codingCycleTimePct: { 7: 200, 30: 220, 90: 180 },
+                    ticketLeadTime: { 7: "a month", 30: "6 weeks", 90: "a month" },
+                    ticketLeadTimePct: { 7: 30, 30: 38, 90: 25 },
+                    weeklyThroughput: { 7: 2, 30: 3, 90: 3 },
+                    weeklyThroughputPct: { 7: 48, 30: 55, 90: 50 },
+                    activeContributors: { 7: "8.5", 30: "9.0", 90: "9.4" },
+                    activeContributorsPct: { 7: 10, 30: 14, 90: 16 },
+                    overloadedPct: { 7: "12.0", 30: "11.0", 90: "10.5" },
+                    overloadedPctVal: { 7: 18, 30: 14, 90: 12 },
+                    contributorLoad: { 7: "3.2", 30: "3.1", 90: "3.0" },
+                    contributorLoadPct: { 7: 42, 30: 38, 90: 34 },
+                    ticketThroughput: { 7: "1.1", 30: "1.5", 90: "1.8" },
+                    ticketThroughputPct: { 7: 5, 30: -5, 90: 10 },
+                    leadTime: { 7: "a month", 30: "6 weeks", 90: "a month" },
+                    leadTimePct: { 7: 30, 30: 38, 90: 25 },
+                    stageBacklog: { 7: "a day", 30: "2 days", 90: "3 days" },
+                    stagePickup: { 7: "12 hrs", 30: "1.5 days", 90: "2 days" },
+                    stageResolution: { 7: "48 days", 30: "56 days", 90: "45 days" },
+                    codeThroughput: { 7: "2", 30: "2", 90: "3" },
+                    codeThroughputPct: { 7: 20, 30: -8, 90: 15 },
+                    cycleTime: { 7: "6 days", 30: "11 days", 90: "14 days" },
+                    cycleTimePct: { 7: -8, 30: 20, 90: 18 },
+                    codeDev: { 7: "12 days", 30: "16 days", 90: "13 days" },
+                    codeResponse: { 7: "14 hrs", 30: "18 hrs", 90: "15 hrs" },
+                    codeReview: { 7: "10 days", 30: "14 days", 90: "11 days" },
+                    codeIntegration: { 7: "2 days", 30: "3 days", 90: "2 days" },
+                    avgResponseTime: { 7: "2.0 days", 30: "2.3 days", 90: "2.5 days" },
+                    avgResponseTimePct: { 7: 48, 30: 52, 90: 45 },
+                    mergeSuccess: { 7: "100", 30: "99.5", 90: "99.0" },
+                    mergeSuccessPct: { 7: 0, 30: 1, 90: 2 },
+                    mergeOutside: { 7: "6.0", 30: "7.0", 90: "7.5" },
+                    avgReviewTime: { 7: "18 hours", 30: "20 hours", 90: "22 hours" },
+                    avgReviewTimePct: { 7: 22, 30: 26, 90: 30 },
+                    avgReviewCycles: { 7: "3", 30: "3", 90: "3" },
+                    avgReviewCyclesPct: { 7: 0, 30: 0, 90: 0 },
+                    totalBuilds: { 7: "170", 30: "715", 90: "2,060" },
+                    totalBuildsPct: { 7: 35, 30: 42, 90: 45 },
+                    reliability: { 7: "90.5", 30: "89.8", 90: "90.5" },
+                    reliabilityPct: { 7: 1, 30: 0, 90: 2 },
+                    buildSpeed: { 7: "1 min", 30: "1.2 min", 90: "55 sec" },
+                    buildSpeedPct: { 7: 70, 30: 75, 90: 65 },
+                    recoveryTime: { 7: "3 days", 30: "4 days", 90: "5 days" },
+                    recoveryTimePct: { 7: 500, 30: 560, 90: 450 },
+                },
+            };
+
+            // ─── STATE ───────────────────────────────────────────────────────────────
+            let currentTimePeriod = 7;
+            let currentTeam = "frontend";
+            const charts = {};
+
+            // ─── TIME CONFIG ─────────────────────────────────────────────────────────
+            function getTimeConfig() {
+                if (currentTimePeriod === 7) {
+                    return {
+                        numPoints: 7,
+                        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                        shortLabels: ["M", "T", "W", "T", "F", "S", "S"],
+                    };
+                } else if (currentTimePeriod === 30) {
+                    return {
+                        numPoints: 4,
+                        labels: ["Week 1", "Week 2", "Week 3", "Week 4"],
+                        shortLabels: ["W1", "W2", "W3", "W4"],
+                    };
+                } else {
+                    return {
+                        numPoints: 13,
+                        labels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12", "W13"],
+                        shortLabels: ["W1", "W2", "W3", "W4", "W5", "W6", "W7", "W8", "W9", "W10", "W11", "W12", "W13"],
+                    };
+                }
+            }
+
+            // Seeded deterministic data generator
+            function genData(n, min, max, seed, trend = 0) {
+                const out = [];
+                let v = min + (max - min) * 0.5;
+                for (let i = 0; i < n; i++) {
+                    const r = Math.sin(seed * 9301 + i * 49297 + 233) * 0.5 + 0.5;
+                    v = Math.max(min, Math.min(max, v + trend + (r - 0.5) * (max - min) * 0.35));
+                    out.push(Math.round(v * 10) / 10);
+                }
+                return out;
+            }
+
+            // ─── KPI UPDATES ─────────────────────────────────────────────────────────
+            function updateKPIs() {
+                const d = teamData[currentTeam];
+                const p = currentTimePeriod;
+                if (!d) return;
+
+                document.querySelectorAll("[data-kpi]").forEach((el) => {
+                    const key = el.dataset.kpi;
+                    if (d[key] && d[key][p] !== undefined) {
+                        el.textContent = d[key][p];
+                    }
+                });
+
+                document.querySelectorAll("[data-kpi-badge]").forEach((el) => {
+                    const key = el.dataset.kpiBadge;
+                    const dirAttr = el.dataset.kpiDir; // semantic: is up good or bad for this metric?
+                    if (d[key] && d[key][p] !== undefined) {
+                        const val = d[key][p];
+                        // Determine actual arrow from value sign
+                        const actualDir = val === 0 ? "neutral" : val > 0 ? "up" : "down";
+                        const arrow = val === 0 ? "→" : val > 0 ? "↑" : "↓";
+                        el.textContent = arrow + " " + Math.abs(val) + "%";
+                        // Badge colour: neutral if 0, else based on whether direction is "good"
+                        // For metrics where up=good (dirAttr='up'), green when positive, red when negative
+                        // For metrics where down=good (dirAttr='down'), green when negative, red when positive
+                        let cls;
+                        if (val === 0) cls = "neutral";
+                        else if (dirAttr === "neutral") cls = "neutral";
+                        else if (dirAttr === "up") cls = val > 0 ? "up" : "down";
+                        else /* dirAttr==='down' */ cls = val < 0 ? "up" : "down";
+                        el.className = "change-badge " + cls;
+                    }
+                });
+
+                const periodLabel = currentTimePeriod === 7 ? "7" : currentTimePeriod === 30 ? "30" : "90";
+                document.querySelectorAll(".period-days").forEach((el) => (el.textContent = periodLabel));
+
+                // Update gauge on teams overview if visible
+                if (document.getElementById("page-teams-overview").classList.contains("active")) {
+                    updateGauge();
+                }
+                // Re-render AI charts if AI page visible
+                if (document.getElementById("page-ai-usage").classList.contains("active")) {
+                    initAIUsageCharts();
+                }
+            }
+
+            function updateGauge() {
+                const val = teamData[currentTeam].activeMembers[currentTimePeriod] || 85;
+                if (charts.avgActiveMembers) charts.avgActiveMembers.destroy();
+                charts.avgActiveMembers = Highcharts.chart("avgActiveMembersGauge", {
+                    chart: { type: "pie", backgroundColor: "transparent", height: 200, margin: [0, 0, 0, 0] },
+                    title: null,
+                    tooltip: { enabled: false },
+                    plotOptions: {
+                        pie: {
+                            innerSize: "65%",
+                            startAngle: -90,
+                            endAngle: 90,
+                            center: ["50%", "80%"],
+                            size: "120%",
+                            dataLabels: { enabled: false },
+                        },
+                    },
+                    series: [
+                        {
+                            data: [
+                                { name: "Active", y: val, color: "#5742f1" },
+                                { name: "Inactive", y: 100 - val, color: "#f0f0f0" },
+                            ],
+                        },
+                    ],
+                    credits: { enabled: false },
+                    exporting: { enabled: false },
+                });
+
+                // Add center label manually
+                const container = document.getElementById("avgActiveMembersGauge");
+                let label = container.querySelector(".gauge-label");
+                if (!label) {
+                    label = document.createElement("div");
+                    label.className = "gauge-label";
+                    label.style.cssText =
+                        'position:absolute;bottom:4px;width:100%;text-align:center;font-size:20px;font-weight:700;font-family:"DM Sans",sans-serif;color:#0d0d0d;pointer-events:none;letter-spacing:-0.02em';
+                    container.style.position = "relative";
+                    container.appendChild(label);
+                }
+                label.textContent = val + "%";
+            }
+
+            // ─── DROPDOWNS ───────────────────────────────────────────────────────────
+            function initializeDropdowns() {
+                document.querySelectorAll(".dropdown-button").forEach((btn) => {
+                    btn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        const menu = btn.nextElementSibling;
+                        document.querySelectorAll(".dropdown-menu").forEach((m) => {
+                            if (m !== menu) m.classList.remove("active");
+                        });
+                        menu.classList.toggle("active");
+                    });
+                });
+
+                document.addEventListener("click", () => {
+                    document.querySelectorAll(".dropdown-menu").forEach((m) => m.classList.remove("active"));
+                });
+
+                document.querySelectorAll("#timePeriodMenu .dropdown-item").forEach((item) => {
+                    item.addEventListener("click", () => {
+                        currentTimePeriod = parseInt(item.dataset.value);
+                        document.querySelectorAll("#timePeriodMenu .dropdown-item").forEach((i) => i.classList.remove("selected"));
+                        item.classList.add("selected");
+                        document.getElementById("timePeriodBtn").textContent = item.textContent + " ▼";
+                        updateAllCharts();
+                    });
+                });
+
+                document.querySelectorAll("#teamsMenu .dropdown-item").forEach((item) => {
+                    item.addEventListener("click", () => {
+                        currentTeam = item.dataset.value;
+                        document.querySelectorAll("#teamsMenu .dropdown-item").forEach((i) => i.classList.remove("selected"));
+                        item.classList.add("selected");
+                        document.getElementById("teamsBtn").textContent = item.textContent + " ▼";
+                        updateAllCharts();
+                    });
+                });
+            }
+
+            // ─── SIDEBAR ─────────────────────────────────────────────────────────────
+            function initializeSidebar() {
+                document.querySelectorAll(".nav-item[data-page]").forEach((item) => {
+                    item.addEventListener("click", () => {
+                        const pageId = item.dataset.page;
+                        showPage(pageId);
+                        document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
+                        item.classList.add("active");
+                    });
+                });
+            }
+
+            // ─── PAGE NAVIGATION ─────────────────────────────────────────────────────
+            function showPage(pageId) {
+                document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+                document.getElementById(pageId).classList.add("active");
+
+                const titleMap = {
+                    "page-ai-usage": "AI Usage",
+                    "page-teams-overview": "Teams Overview",
+                    "page-team-health": "Team Health",
+                    "page-ticket-throughput": "Ticket Throughput",
+                    "page-code-throughput": "Code Throughput",
+                    "page-review-status": "Review Status",
+                    "page-ci-overview": "CI Overview",
+                };
+                document.getElementById("pageTitle").textContent = titleMap[pageId] || "Dashboard";
+                updateKPIs();
+
+                setTimeout(() => {
+                    if (pageId === "page-ai-usage") initAIUsageCharts();
+                    else if (pageId === "page-teams-overview") initTeamsOverviewCharts();
+                    else if (pageId === "page-team-health") initTeamHealthCharts();
+                    else if (pageId === "page-ticket-throughput") initTicketThroughputCharts();
+                    else if (pageId === "page-code-throughput") initCodeThroughputCharts();
+                    else if (pageId === "page-review-status") initReviewStatusCharts();
+                    else if (pageId === "page-ci-overview") initCIOverviewCharts();
+                }, 80);
+            }
+
+            function updateAllCharts() {
+                updateKPIs();
+                const active = document.querySelector(".page.active");
+                if (!active) return;
+                const pageId = active.id;
+                setTimeout(() => {
+                    if (pageId === "page-ai-usage") initAIUsageCharts();
+                    else if (pageId === "page-teams-overview") initTeamsOverviewCharts();
+                    else if (pageId === "page-team-health") initTeamHealthCharts();
+                    else if (pageId === "page-ticket-throughput") initTicketThroughputCharts();
+                    else if (pageId === "page-code-throughput") initCodeThroughputCharts();
+                    else if (pageId === "page-review-status") initReviewStatusCharts();
+                    else if (pageId === "page-ci-overview") initCIOverviewCharts();
+                }, 80);
+            }
+
+            // ─── CHART HELPERS ────────────────────────────────────────────────────────
+            const HC_DEFAULTS = {
+                chart: { backgroundColor: "transparent" },
+                title: null,
+                credits: { enabled: false },
+                exporting: { enabled: false },
+            };
+
+            function makeChart(id, opts) {
+                return Highcharts.chart(id, Object.assign({}, HC_DEFAULTS, opts));
+            }
+
+            // ─── AI USAGE CHARTS ─────────────────────────────────────────────────────
+            function initAIUsageCharts() {
+                const { numPoints, labels } = getTimeConfig();
+                const isFrontend = currentTeam === "frontend";
+                const seed = isFrontend ? 1 : 2;
+                const p = currentTimePeriod;
+
+                ["aiUsersGaugeChart", "aiAcceptance", "aiPRs", "aiLoC"].forEach((k) => {
+                    if (charts[k]) {
+                        charts[k].destroy();
+                        charts[k] = null;
+                    }
+                });
+
+                // ── 1. Users Using AI — half-circle gauge ────────────────────────────
+                const adoption = isFrontend ? (p === 7 ? 72 : p === 30 ? 68 : 65) : p === 7 ? 54 : p === 30 ? 50 : 46;
+
+                charts.aiUsersGaugeChart = makeChart("aiUsersGauge", {
+                    chart: { type: "pie", height: 200, margin: [0, 0, 0, 0] },
+                    tooltip: { enabled: false },
+                    plotOptions: {
+                        pie: {
+                            innerSize: "65%",
+                            startAngle: -90,
+                            endAngle: 90,
+                            center: ["50%", "80%"],
+                            size: "120%",
+                            dataLabels: { enabled: false },
+                        },
+                    },
+                    series: [
+                        {
+                            data: [
+                                { name: "Using AI", y: adoption, color: "#5742f1" },
+                                { name: "Not using", y: 100 - adoption, color: "#efefef" },
+                            ],
+                        },
+                    ],
+                });
+                // Centre label
+                const gEl = document.getElementById("aiUsersGauge");
+                let gLbl = gEl.querySelector(".gauge-label");
+                if (!gLbl) {
+                    gLbl = document.createElement("div");
+                    gLbl.className = "gauge-label";
+                    gLbl.style.cssText =
+                        'position:absolute;bottom:4px;width:100%;text-align:center;font-size:20px;font-weight:700;font-family:"DM Sans",sans-serif;color:#0d0d0d;pointer-events:none;letter-spacing:-0.02em';
+                    gEl.appendChild(gLbl);
+                }
+                gLbl.textContent = adoption + "%";
+
+                // ── 2. Acceptance Rate — donut (Rejection vs Acceptance) ─────────────
+                const acceptPct = isFrontend ? (p === 7 ? 44 : p === 30 ? 42 : 40) : p === 7 ? 38 : p === 30 ? 36 : 34;
+
+                charts.aiAcceptance = makeChart("aiAcceptanceDonut", {
+                    chart: { type: "pie" },
+                    tooltip: { pointFormat: "{series.name}: <b>{point.percentage:.0f}%</b>" },
+                    plotOptions: {
+                        pie: {
+                            innerSize: "60%",
+                            dataLabels: { enabled: false },
+                            showInLegend: true,
+                        },
+                    },
+                    legend: {
+                        enabled: true,
+                        layout: "vertical",
+                        align: "right",
+                        verticalAlign: "middle",
+                        itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500", color: "#0d0d0d" },
+                    },
+                    series: [
+                        {
+                            name: "Rate",
+                            colorByPoint: true,
+                            data: [
+                                { name: "Rejection", y: 100 - acceptPct, color: "#7c3aed" },
+                                { name: "Acceptance", y: acceptPct, color: "#e181a4" },
+                            ],
+                        },
+                    ],
+                });
+
+                // ── 3. Non AI-Assisted vs AI-Assisted PRs — donut ────────────────────
+                const aiPRpct = isFrontend ? (p === 7 ? 35 : p === 30 ? 38 : 42) : p === 7 ? 25 : p === 30 ? 28 : 32;
+
+                charts.aiPRs = makeChart("aiPRsDonut", {
+                    chart: { type: "pie" },
+                    tooltip: { pointFormat: "{series.name}: <b>{point.percentage:.0f}%</b>" },
+                    plotOptions: {
+                        pie: {
+                            innerSize: "60%",
+                            dataLabels: { enabled: false },
+                            showInLegend: true,
+                        },
+                    },
+                    legend: {
+                        enabled: true,
+                        layout: "vertical",
+                        align: "right",
+                        verticalAlign: "middle",
+                        itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500", color: "#0d0d0d" },
+                    },
+                    series: [
+                        {
+                            name: "PRs",
+                            colorByPoint: true,
+                            data: [
+                                { name: "AI-Assisted PRs", y: aiPRpct, color: "#e181a4" },
+                                { name: "Non AI-Assisted PRs", y: 100 - aiPRpct, color: "#1a3a6e" },
+                            ],
+                        },
+                    ],
+                });
+
+                // ── 4. Generated vs Committed AI LoC — full-width grouped column ─────
+                const locScale = p === 7 ? 1 : p === 30 ? 4 : 13;
+                const genBase = isFrontend ? 420 : 310;
+                const comBase = isFrontend ? 180 : 130;
+
+                charts.aiLoC = makeChart("aiLoCChart", {
+                    chart: { type: "column" },
+                    xAxis: { categories: labels, labels: { style: { fontSize: "11px" } } },
+                    yAxis: {
+                        min: 0,
+                        title: { text: "Lines of Code", style: { fontSize: "11px", color: "#adadad" } },
+                    },
+                    legend: { enabled: true, itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500" } },
+                    tooltip: { shared: true, valueSuffix: " LoC" },
+                    plotOptions: { column: { grouping: true, borderRadius: 3, groupPadding: 0.12 } },
+                    series: [
+                        { name: "Generated", data: genData(numPoints, genBase * locScale * 0.7, genBase * locScale * 1.3, seed + 1, 20), color: "#5742f1" },
+                        { name: "Committed", data: genData(numPoints, comBase * locScale * 0.7, comBase * locScale * 1.3, seed + 2, 8), color: "#0ea5a0" },
+                    ],
+                });
+
+                // ── 5. Team AI Usage table ────────────────────────────────────────────
+                const locFmt = (v) => (v >= 1000 ? (v / 1000).toFixed(1) + "K" : v);
+                const genFe = Math.round(genBase * locScale);
+                const comFe = Math.round(comBase * locScale);
+                const genBe = Math.round(310 * locScale);
+                const comBe = Math.round(130 * locScale);
+
+                const rows = [
+                    {
+                        team: "Frontend Web",
+                        adopt: isFrontend ? adoption : p === 7 ? 43 : p === 30 ? 46 : 50,
+                        accept: isFrontend ? acceptPct : p === 7 ? 40 : p === 30 ? 38 : 36,
+                        aipr: isFrontend ? aiPRpct : p === 7 ? 28 : p === 30 ? 32 : 36,
+                        gen: locFmt(isFrontend ? genFe : Math.round(genFe * 0.55)),
+                        com: locFmt(isFrontend ? comFe : Math.round(comFe * 0.55)),
+                    },
+                    {
+                        team: "Backend API",
+                        adopt: isFrontend ? (p === 7 ? 52 : p === 30 ? 49 : 45) : adoption,
+                        accept: isFrontend ? (p === 7 ? 40 : p === 30 ? 37 : 35) : acceptPct,
+                        aipr: isFrontend ? (p === 7 ? 28 : p === 30 ? 30 : 34) : aiPRpct,
+                        gen: locFmt(isFrontend ? Math.round(genBe * 0.72) : genBe),
+                        com: locFmt(isFrontend ? Math.round(comBe * 0.72) : comBe),
+                    },
+                ];
+
+                const tbody = document.getElementById("teamAIUsageTbody");
+                if (tbody) {
+                    tbody.innerHTML = rows
+                        .map(
+                            (r) => `
+                <tr>
+                    <td style="font-family:'DM Sans',sans-serif;font-weight:500;color:#0d0d0d;">${r.team}</td>
+                    <td>
+                        <span style="display:inline-flex;align-items:center;gap:7px;">
+                            <span style="display:inline-block;width:60px;height:5px;border-radius:3px;background:#efefef;overflow:hidden;">
+                                <span style="display:block;width:${r.adopt}%;height:100%;background:#5742f1;border-radius:3px;"></span>
+                            </span>
+                            <strong style="color:#5742f1;">${r.adopt}%</strong>
+                        </span>
+                    </td>
+                    <td><span style="display:inline-flex;align-items:center;gap:5px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#e181a4;display:inline-block;flex-shrink:0;"></span>
+                        ${r.accept}%
+                    </span></td>
+                    <td><span style="display:inline-flex;align-items:center;gap:5px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#e181a4;display:inline-block;flex-shrink:0;"></span>
+                        ${r.aipr}%
+                    </span></td>
+                    <td><span style="display:inline-flex;align-items:center;gap:5px;">
+                        <span style="width:8px;height:8px;border-radius:50%;background:#1a3a6e;display:inline-block;flex-shrink:0;"></span>
+                        ${100 - r.aipr}%
+                    </span></td>
+                    <td>${r.gen}</td>
+                    <td>${r.com}</td>
+                </tr>`,
+                        )
+                        .join("");
+                }
+            }
+
+            // ─── TEAMS OVERVIEW CHARTS ───────────────────────────────────────────────
+            function initTeamsOverviewCharts() {
+                if (charts.investmentBreakdown) charts.investmentBreakdown.destroy();
+
+                updateGauge();
+
+                const isBackend = currentTeam === "backend";
+                charts.investmentBreakdown = makeChart("investmentBreakdownDonut", {
+                    chart: { type: "pie", backgroundColor: "transparent" },
+                    legend: {
+                        enabled: true,
+                        layout: "vertical",
+                        align: "right",
+                        verticalAlign: "middle",
+                        itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500", color: "#0d0d0d" },
+                    },
+                    plotOptions: {
+                        pie: {
+                            innerSize: "60%",
+                            dataLabels: { enabled: false },
+                            showInLegend: true,
+                        },
+                    },
+                    series: [
+                        {
+                            data: isBackend
+                                ? [
+                                      { name: "Maintenance", y: 42, color: "#0ea5a0" },
+                                      { name: "New", y: 30, color: "#5742f1" },
+                                      { name: "Rework", y: 22, color: "#7c3aed" },
+                                      { name: "Other", y: 6, color: "#e5a04b" },
+                                  ]
+                                : [
+                                      { name: "Maintenance", y: 35, color: "#0ea5a0" },
+                                      { name: "New", y: 38, color: "#5742f1" },
+                                      { name: "Rework", y: 18, color: "#7c3aed" },
+                                      { name: "Other", y: 9, color: "#e5a04b" },
+                                  ],
+                        },
+                    ],
+                });
+
+                // Update alert counts from data
+                const alertsData = {
+                    frontend: { 7: [3, 2, 1, 1], 30: [5, 3, 2, 2], 90: [7, 4, 3, 3] },
+                    backend: { 7: [5, 4, 2, 2], 30: [8, 5, 4, 3], 90: [11, 7, 5, 5] },
+                };
+                const a = alertsData[currentTeam][currentTimePeriod];
+                const alertEl = document.getElementById("teamAlertsList");
+                if (alertEl) {
+                    const alertBadge = (n) => {
+                        const cls = n > 0 ? "nonzero" : "zero";
+                        return `<span class="alert-count-badge ${cls}">${n}</span>`;
+                    };
+                    const names = ["Slow Pickup", "Sprint Overrun", "Stale PRs", "Long Running PRs"];
+                    alertEl.innerHTML = a
+                        .map((count, i) => `<li class="alert-item">${alertBadge(count)}<span class="alert-item-name">${names[i]}</span></li>`)
+                        .join("");
+                }
+
+                // ── Teams Overview table ─────────────────────────────────────────────
+                const p = currentTimePeriod;
+                const tableTeams = [
+                    {
+                        name: "Frontend Web",
+                        activeCount: p === 7 ? 14 : p === 30 ? 15 : 16,
+                        totalCount: 17,
+                        activePct: p === 7 ? 82 : p === 30 ? 85 : 87,
+                        wip: p === 7 ? 8 : p === 30 ? 10 : 12,
+                        cycleTime: p === 7 ? "10 days" : p === 30 ? "14 days" : "11 days",
+                        throughput: p === 7 ? 9 : p === 30 ? 12 : 14,
+                        workActs: [
+                            { color: "#5742f1", pct: 38 },
+                            { color: "#0ea5a0", pct: 35 },
+                            { color: "#7c3aed", pct: 18 },
+                            { color: "#e5a04b", pct: 9 },
+                        ],
+                        totalAlerts: alertsData.frontend[p].reduce((s, v) => s + v, 0),
+                        status: "Healthy",
+                    },
+                    {
+                        name: "Backend API",
+                        activeCount: p === 7 ? 8 : p === 30 ? 9 : 9,
+                        totalCount: 10,
+                        activePct: p === 7 ? 78 : p === 30 ? 82 : 84,
+                        wip: p === 7 ? 6 : p === 30 ? 8 : 9,
+                        cycleTime: p === 7 ? "14 days" : p === 30 ? "18 days" : "15 days",
+                        throughput: p === 7 ? 7 : p === 30 ? 9 : 10,
+                        workActs: [
+                            { color: "#5742f1", pct: 30 },
+                            { color: "#0ea5a0", pct: 42 },
+                            { color: "#7c3aed", pct: 22 },
+                            { color: "#e5a04b", pct: 6 },
+                        ],
+                        totalAlerts: alertsData.backend[p].reduce((s, v) => s + v, 0),
+                        status: "Healthy",
+                    },
+                ];
+
+                const tbody = document.getElementById("teamsOverviewTbody");
+                if (tbody) {
+                    tbody.innerHTML = tableTeams
+                        .map((t) => {
+                            const wipClass = t.wip > 0 ? "wip-badge nonzero" : "wip-badge";
+                            const alertClass = t.totalAlerts > 0 ? "alert-badge has-alerts" : "alert-badge";
+                            const workBars = t.workActs.map((w) => `<div class="work-seg" style="width:${w.pct}%;background:${w.color};"></div>`).join("");
+                            // Cycle time color: orange/warn if >10days range
+                            const ctNum = parseInt(t.cycleTime);
+                            const ctClass = ctNum >= 14 ? "metric-danger" : "metric-warn";
+                            return `
+                <tr>
+                    <td style="font-family:'DM Sans',sans-serif;font-weight:500;color:#0d0d0d;">${t.name}</td>
+                    <td>
+                        <div class="member-cell">
+                            <div class="member-bar-wrap"><div class="member-bar-fill" style="width:${t.activePct}%;"></div></div>
+                            <span class="member-bar-label">${t.activeCount} / ${t.totalCount} contributors</span>
+                        </div>
+                    </td>
+                    <td><span class="${wipClass}">${t.wip}</span></td>
+                    <td><span class="${ctClass}">${t.cycleTime}</span></td>
+                    <td><span class="metric-warn">${t.throughput} tickets</span></td>
+                    <td><div class="work-acts">${workBars}</div></td>
+                    <td><span class="${alertClass}">${t.totalAlerts}</span></td>
+                    <td><span class="status-badge healthy">${t.status}</span></td>
+                </tr>`;
+                        })
+                        .join("");
+                }
+            }
+
+            // ─── TEAM HEALTH CHARTS ──────────────────────────────────────────────────
+            function initTeamHealthCharts() {
+                const { numPoints, labels } = getTimeConfig();
+                const seed = currentTeam === "frontend" ? 10 : 20;
+                const scale = currentTimePeriod === 7 ? 1 : currentTimePeriod === 30 ? 3 : 9;
+
+                ["teamOverload", "reviewDistribution"].forEach((k) => {
+                    if (charts[k]) charts[k].destroy();
+                });
+
+                const cats = currentTeam === "frontend" ? ["Frontend", "UI/UX", "Core", "DevOps"] : ["Backend", "API", "Infra", "QA"];
+                charts.teamOverload = makeChart("teamOverloadChart", {
+                    chart: { type: "column", backgroundColor: "transparent" },
+                    xAxis: { categories: cats },
+                    yAxis: { visible: false },
+                    legend: { enabled: true },
+                    series: [
+                        { name: "Active", data: [14, 11, 9, 7].map((v) => Math.round(v * (currentTimePeriod / 30))), color: "#5742f1", borderRadius: 3 },
+                        {
+                            name: "Overloaded",
+                            data: [2, 1, 2, 1].map((v) => Math.max(1, Math.round(v * (currentTimePeriod / 30)))),
+                            color: "#d35e5e",
+                            borderRadius: 3,
+                        },
+                    ],
+                });
+
+                const distBuckets = ["0-2", "2-4", "4-6", "6-8", "8+"];
+                charts.reviewDistribution = makeChart("reviewDistributionChart", {
+                    chart: { type: "column", backgroundColor: "transparent" },
+                    xAxis: { categories: distBuckets },
+                    yAxis: { visible: false },
+                    legend: { enabled: false },
+                    series: [
+                        {
+                            name: "Contributors",
+                            data: genData(5, 3 * scale, 15 * scale, seed, 0),
+                            color: "#5742f1",
+                            borderRadius: 3,
+                        },
+                    ],
+                });
+            }
+
+            // ─── TICKET THROUGHPUT CHARTS ────────────────────────────────────────────
+            function initTicketThroughputCharts() {
+                const { numPoints, labels } = getTimeConfig();
+                const seed = currentTeam === "frontend" ? 30 : 40;
+                const isFrontend = currentTeam === "frontend";
+
+                ["leadTimeDistribution", "ticketInvestment", "backlogTrend"].forEach((k) => {
+                    if (charts[k]) charts[k].destroy();
+                });
+
+                // Distribution of Lead Time — blue bars, orange tail bucket
+                const histBuckets = ["0", "2", "4", "6", "8", "10", "12", "≥14"];
+                const tailVal = currentTimePeriod === 7 ? 5 : currentTimePeriod === 30 ? 12 : 28;
+                const leadVals =
+                    currentTimePeriod === 7
+                        ? [0, 0, 1, 1, 2, 0, 0, tailVal]
+                        : currentTimePeriod === 30
+                          ? [2, 3, 4, 5, 4, 3, 2, tailVal]
+                          : [5, 8, 12, 16, 13, 9, 6, tailVal];
+                charts.leadTimeDistribution = makeChart("leadTimeDistributionChart", {
+                    chart: { type: "column", backgroundColor: "transparent", height: null },
+                    xAxis: { categories: histBuckets, title: { text: "Lead Time (days)", style: { fontSize: "11px", color: "#adadad" } } },
+                    yAxis: { title: { text: "Tickets", style: { fontSize: "11px", color: "#adadad" } }, min: 0 },
+                    legend: { enabled: false },
+                    series: [
+                        {
+                            name: "Tickets",
+                            data: leadVals.map((v, i) => ({ y: v, color: i === leadVals.length - 1 ? "#e5a04b" : "#5c8dc6" })),
+                            borderRadius: 3,
+                        },
+                    ],
+                });
+
+                // Investment Breakdown — Story / Task / Bug (matches platform)
+                charts.ticketInvestment = makeChart("ticketInvestmentDonut", {
+                    chart: { type: "pie", backgroundColor: "transparent" },
+                    legend: {
+                        enabled: true,
+                        layout: "vertical",
+                        align: "right",
+                        verticalAlign: "middle",
+                        itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500", color: "#0d0d0d" },
+                    },
+                    plotOptions: {
+                        pie: {
+                            innerSize: "62%",
+                            dataLabels: { enabled: false },
+                            showInLegend: true,
+                        },
+                    },
+                    series: [
+                        {
+                            data: isFrontend
+                                ? [
+                                      { name: "Story", y: 50, color: "#0ea5a0" },
+                                      { name: "Task", y: 30, color: "#5c8dc6" },
+                                      { name: "Bug", y: 20, color: "#7c3aed" },
+                                  ]
+                                : [
+                                      { name: "Story", y: 44, color: "#0ea5a0" },
+                                      { name: "Task", y: 33, color: "#5c8dc6" },
+                                      { name: "Bug", y: 23, color: "#7c3aed" },
+                                  ],
+                        },
+                    ],
+                });
+
+                // Backlog Trend — created (above) / resolved (below) + smooth accumulated line
+                const base = currentTimePeriod === 7 ? 8 : currentTimePeriod === 30 ? 32 : 95;
+                const createdTrend = genData(numPoints, base * 0.3, base * 1.2, seed + 1, 0.1);
+                const resolvedRaw = genData(numPoints, base * 0.4, base * 1.1, seed + 2, 0.1);
+                // Accumulated = running sum of (created − resolved), starting slightly negative
+                let accVal = -(base * 0.4);
+                const accData = createdTrend.map((c, i) => {
+                    accVal += (c - resolvedRaw[i]) * 0.45;
+                    return Math.round(accVal * 10) / 10;
+                });
+                charts.backlogTrend = makeChart("backlogTrendChart", {
+                    chart: { type: "column", backgroundColor: "transparent" },
+                    xAxis: { categories: labels, labels: { style: { fontSize: "11px" } } },
+                    yAxis: [
+                        {
+                            title: { text: "Tickets", style: { fontSize: "11px", color: "#adadad" } },
+                            plotLines: [{ value: 0, color: "#666666", width: 1.5, zIndex: 5 }],
+                        },
+                        {
+                            title: { text: "Backlog Accumulated", style: { fontSize: "11px", color: "#adadad" } },
+                            opposite: true,
+                        },
+                    ],
+                    legend: { enabled: true, itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500" } },
+                    series: [
+                        {
+                            name: "Created",
+                            type: "column",
+                            data: createdTrend,
+                            color: "#5c8dc6",
+                            borderRadius: 3,
+                            yAxis: 0,
+                        },
+                        {
+                            name: "Resolved",
+                            type: "column",
+                            data: resolvedRaw.map((v) => -v),
+                            color: "#0ea5a0",
+                            borderRadius: 3,
+                            yAxis: 0,
+                        },
+                        {
+                            name: "Backlog Accumulated",
+                            type: "spline",
+                            data: accData,
+                            color: "#7c3aed",
+                            yAxis: 1,
+                            marker: { radius: 3 },
+                            lineWidth: 2,
+                        },
+                    ],
+                });
+            }
+
+            // ─── CODE THROUGHPUT CHARTS ──────────────────────────────────────────────
+            function initCodeThroughputCharts() {
+                const { numPoints, labels } = getTimeConfig();
+                const seed = currentTeam === "frontend" ? 50 : 60;
+                const isFrontend = currentTeam === "frontend";
+
+                ["cycleTimeDistribution", "workFocus", "backlogAccumulation"].forEach((k) => {
+                    if (charts[k]) charts[k].destroy();
+                });
+
+                // Distribution of Cycle Time — blue bars, orange tail
+                const ctBuckets = ["<2h", "2h", "4h", "8h", "24h", "48h", "≥72h"];
+                const tailVal2 = currentTimePeriod === 7 ? 6 : currentTimePeriod === 30 ? 18 : 42;
+                const ctVals =
+                    currentTimePeriod === 7
+                        ? isFrontend
+                            ? [3, 5, 6, 8, 4, 2, tailVal2]
+                            : [2, 4, 5, 6, 3, 2, tailVal2]
+                        : currentTimePeriod === 30
+                          ? isFrontend
+                              ? [8, 14, 18, 24, 12, 7, tailVal2]
+                              : [6, 11, 14, 20, 10, 6, tailVal2]
+                          : isFrontend
+                            ? [22, 36, 48, 64, 32, 18, tailVal2]
+                            : [16, 28, 38, 52, 26, 14, tailVal2];
+                charts.cycleTimeDistribution = makeChart("cycleTimeDistributionChart", {
+                    chart: { type: "column", backgroundColor: "transparent", height: null },
+                    xAxis: { categories: ctBuckets, title: { text: "Cycle Time", style: { fontSize: "11px", color: "#adadad" } } },
+                    yAxis: { title: { text: "PRs", style: { fontSize: "11px", color: "#adadad" } }, min: 0 },
+                    legend: { enabled: false },
+                    series: [
+                        {
+                            name: "PRs",
+                            data: ctVals.map((v, i) => ({ y: v, color: i === ctVals.length - 1 ? "#e5a04b" : "#5742f1" })),
+                            borderRadius: 3,
+                        },
+                    ],
+                });
+
+                // Work Focus donut
+                charts.workFocus = makeChart("workFocusDonut", {
+                    chart: { type: "pie", backgroundColor: "transparent" },
+                    legend: {
+                        enabled: true,
+                        layout: "vertical",
+                        align: "right",
+                        verticalAlign: "middle",
+                        itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500", color: "#0d0d0d" },
+                    },
+                    plotOptions: {
+                        pie: {
+                            innerSize: "62%",
+                            dataLabels: { enabled: false },
+                            showInLegend: true,
+                        },
+                    },
+                    series: [
+                        {
+                            data: isFrontend
+                                ? [
+                                      { name: "New", y: 52, color: "#5742f1" },
+                                      { name: "Maintenance", y: 30, color: "#0ea5a0" },
+                                      { name: "Rework Own", y: 18, color: "#e181a4" },
+                                  ]
+                                : [
+                                      { name: "New", y: 45, color: "#5742f1" },
+                                      { name: "Maintenance", y: 35, color: "#0ea5a0" },
+                                      { name: "Rework Own", y: 20, color: "#e181a4" },
+                                  ],
+                        },
+                    ],
+                });
+
+                // PR Accumulation — opened (above) / merged (below) + smooth open-total line
+                const base = currentTimePeriod === 7 ? 6 : currentTimePeriod === 30 ? 24 : 72;
+                const openedData = genData(numPoints, base * 0.3, base * 1.2, seed + 1, 0.1);
+                const mergedRaw = genData(numPoints, base * 0.4, base * 1.1, seed + 2, 0.1);
+                // Open Total = running sum of (opened − merged), starting slightly negative
+                let openAcc = -(base * 0.35);
+                const openTotalData = openedData.map((o, i) => {
+                    openAcc += (o - mergedRaw[i]) * 0.45;
+                    return Math.round(openAcc * 10) / 10;
+                });
+                charts.backlogAccumulation = makeChart("backlogAccumulationChart", {
+                    chart: { type: "column", backgroundColor: "transparent" },
+                    xAxis: { categories: labels, labels: { style: { fontSize: "11px" } } },
+                    yAxis: [
+                        {
+                            title: { text: "PRs", style: { fontSize: "11px", color: "#adadad" } },
+                            plotLines: [{ value: 0, color: "#666666", width: 1.5, zIndex: 5 }],
+                        },
+                        {
+                            title: { text: "Open Total", style: { fontSize: "11px", color: "#adadad" } },
+                            opposite: true,
+                        },
+                    ],
+                    legend: { enabled: true, itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500" } },
+                    series: [
+                        {
+                            name: "Opened",
+                            type: "column",
+                            data: openedData,
+                            color: "#5c8dc6",
+                            borderRadius: 3,
+                            yAxis: 0,
+                        },
+                        {
+                            name: "Merged",
+                            type: "column",
+                            data: mergedRaw.map((v) => -v),
+                            color: "#0ea5a0",
+                            borderRadius: 3,
+                            yAxis: 0,
+                        },
+                        {
+                            name: "Open Total",
+                            type: "spline",
+                            data: openTotalData,
+                            color: "#7c3aed",
+                            yAxis: 1,
+                            lineWidth: 2,
+                            marker: { radius: 3 },
+                        },
+                    ],
+                });
+            }
+
+            // ─── REVIEW STATUS CHARTS ────────────────────────────────────────────────
+            function initReviewStatusCharts() {
+                const { numPoints, labels } = getTimeConfig();
+                const seed = currentTeam === "frontend" ? 70 : 80;
+
+                ["currentReviewStatus", "reviewDistributionStatus", "prWorkflow"].forEach((k) => {
+                    if (charts[k]) charts[k].destroy();
+                });
+
+                charts.currentReviewStatus = makeChart("currentReviewStatusDonut", {
+                    chart: { type: "pie", backgroundColor: "transparent" },
+                    legend: {
+                        enabled: true,
+                        layout: "vertical",
+                        align: "right",
+                        verticalAlign: "middle",
+                        itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500", color: "#0d0d0d" },
+                    },
+                    plotOptions: { pie: { innerSize: "60%", dataLabels: { enabled: false }, showInLegend: true } },
+                    series: [
+                        {
+                            data: [
+                                { name: "In Review", y: 65, color: "#5c8dc6" },
+                                { name: "In Draft", y: 35, color: "#0ea5a0" },
+                            ],
+                        },
+                    ],
+                });
+
+                charts.reviewDistributionStatus = makeChart("reviewDistributionStatusDonut", {
+                    chart: { type: "pie", backgroundColor: "transparent" },
+                    legend: {
+                        enabled: true,
+                        layout: "vertical",
+                        align: "right",
+                        verticalAlign: "middle",
+                        itemStyle: { fontFamily: "Montserrat", fontSize: "11px", fontWeight: "500", color: "#0d0d0d" },
+                    },
+                    plotOptions: { pie: { innerSize: "60%", dataLabels: { enabled: false }, showInLegend: true } },
+                    series: [
+                        {
+                            data: [
+                                { name: "Pending", y: 40, color: "#5742f1" },
+                                { name: "Approved", y: 45, color: "#0ea5a0" },
+                                { name: "Changes Required", y: 15, color: "#d35e5e" },
+                            ],
+                        },
+                    ],
+                });
+
+                // ── PR Workflow Sankey / Alluvial diagram ────────────────────────
+                const isFE = currentTeam === "frontend";
+                // Representative PR counts per team; numbers keep the same funnel %
+                const pr = isFE
+                    ? { opened: 45, reviewed: 42, approved: 39, merged: 33, closedDirect: 6, abanOpen: 3, abanReview: 3 }
+                    : { opened: 38, reviewed: 35, approved: 32, merged: 27, closedDirect: 5, abanOpen: 3, abanReview: 3 };
+
+                // Pre-computed totals for tooltip % calculation
+                const prTotals = {
+                    Opened: pr.opened,
+                    Reviewed: pr.reviewed,
+                    Approved: pr.approved,
+                    Merged: pr.merged,
+                };
+
+                charts.prWorkflow = Highcharts.chart("prWorkflowChart", {
+                    chart: {
+                        type: "sankey",
+                        backgroundColor: "transparent",
+                        margin: [24, 16, 16, 16],
+                        style: { fontFamily: "'DM Sans', sans-serif" },
+                    },
+                    title: null,
+                    credits: { enabled: false },
+                    exporting: { enabled: false },
+                    tooltip: {
+                        useHTML: true,
+                        backgroundColor: "#ffffff",
+                        borderColor: "#e8eaed",
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        shadow: { color: "rgba(0,0,0,0.08)", offsetX: 0, offsetY: 3, opacity: 1, width: 8 },
+                        outside: false,
+                        formatter: function () {
+                            if (this.point.isNode) {
+                                // Node hover: show node name + total count
+                                const incoming = (this.point.linksTo || []).reduce((s, l) => s + l.weight, 0);
+                                const total = this.point.id === "Opened" ? prTotals["Opened"] : incoming;
+                                return `<div style="font-family:'DM Sans',sans-serif;font-size:12px;padding:3px 2px">
+                                    <b style="color:#0d0d0d">${this.point.id}</b>
+                                    <span style="color:#616e7c;margin-left:6px">${total} PRs</span>
+                                </div>`;
+                            }
+                            // Link hover: "From → To: count (pct%)"
+                            const fromTotal = prTotals[this.point.from] || this.point.weight;
+                            const pct = Math.round((this.point.weight / fromTotal) * 100);
+                            return `<div style="font-family:'DM Sans',sans-serif;font-size:13px;padding:3px 2px">
+                                <b style="color:#0d0d0d">${this.point.from} → ${this.point.to}</b>
+                                <span style="color:#616e7c;margin-left:6px">${this.point.weight} (${pct}%)</span>
+                            </div>`;
+                        },
+                    },
+                    series: [
+                        {
+                            type: "sankey",
+                            keys: ["from", "to", "weight"],
+                            data: [
+                                ["Opened", "Reviewed", pr.reviewed],
+                                ["Opened", "Abandoned", pr.abanOpen],
+                                ["Reviewed", "Approved", pr.approved],
+                                ["Reviewed", "Abandoned", pr.abanReview],
+                                ["Approved", "Merged", pr.merged],
+                                ["Approved", "Closed", pr.closedDirect],
+                                ["Merged", "Closed", pr.merged],
+                            ],
+                            nodes: [
+                                { id: "Opened", color: "#5c8dc6" },
+                                { id: "Reviewed", color: "#0ea5a0" },
+                                { id: "Approved", color: "#7c5cbf" },
+                                { id: "Merged", color: "#3d5fa6" },
+                                { id: "Closed", color: "#9b8dc8" },
+                                { id: "Abandoned", color: "#c4c8d0" },
+                            ],
+                            dataLabels: {
+                                enabled: true,
+                                useHTML: false,
+                                style: {
+                                    fontFamily: "'DM Sans', sans-serif",
+                                    fontSize: "13px",
+                                    fontWeight: "700",
+                                    color: "#ffffff",
+                                    textOutline: "2px rgba(0,0,0,0.15)",
+                                },
+                            },
+                            linkOpacity: 0.65,
+                            nodePadding: 14,
+                            nodeWidth: 8,
+                            curveFactor: 0.6,
+                            states: {
+                                hover: { linkOpacity: 0.9 },
+                                inactive: { linkOpacity: 0.2 },
+                            },
+                        },
+                    ],
+                });
+            }
+
+            // ─── CI OVERVIEW CHARTS ──────────────────────────────────────────────────
+            function initCIOverviewCharts() {
+                const { numPoints, labels } = getTimeConfig();
+                const seed = currentTeam === "frontend" ? 90 : 100;
+                const scale = currentTimePeriod === 7 ? 1 : currentTimePeriod === 30 ? 4 : 13;
+
+                if (charts.buildResult) charts.buildResult.destroy();
+
+                const baseSuccess = currentTeam === "frontend" ? 55 : 35;
+                const baseFail = currentTeam === "frontend" ? 4 : 7;
+
+                charts.buildResult = makeChart("buildResultChart", {
+                    chart: { type: "column", backgroundColor: "transparent" },
+                    xAxis: { categories: labels, labels: { style: { fontSize: "11px" } } },
+                    yAxis: { visible: false },
+                    legend: { enabled: true },
+                    tooltip: { shared: true },
+                    series: [
+                        {
+                            name: "Success",
+                            data: genData(numPoints, baseSuccess * scale * 0.8, baseSuccess * scale * 1.2, seed, 1),
+                            color: "#7c3aed",
+                            borderRadius: 3,
+                        },
+                        {
+                            name: "Failed",
+                            data: genData(numPoints, baseFail * scale * 0.7, baseFail * scale * 1.3, seed + 1, 0.1),
+                            color: "#d35e5e",
+                            borderRadius: 3,
+                        },
+                    ],
+                });
+            }
+
+            // ─── USE CASES ───────────────────────────────────────────────────────────
+            const useCases = [
+                {
+                    title: "Identify Engineering Bottlenecks",
+                    description: "See where time is spent in your delivery pipeline.",
+                    action() {
+                        closeUseCases();
+                        showPage("page-code-throughput");
+                        updateSidebarFor("page-code-throughput");
+                        showHighlight("Look at the Code Stages — Development stage is the largest bottleneck. Review cycles add significant overhead.");
+                    },
+                },
+                {
+                    title: "Track AI Adoption",
+                    description: "Monitor how teams are adopting AI coding tools.",
+                    action() {
+                        closeUseCases();
+                        showPage("page-ai-usage");
+                        updateSidebarFor("page-ai-usage");
+                        showHighlight("AI active users and acceptance rate are trending up — strong adoption signals across the team.");
+                    },
+                },
+                {
+                    title: "Monitor Team Health",
+                    description: "Get early warnings about team overload and burnout risk.",
+                    action() {
+                        closeUseCases();
+                        showPage("page-team-health");
+                        updateSidebarFor("page-team-health");
+                        showHighlight("Check Overloaded Contributors — high overload rates are an early burnout warning sign.");
+                    },
+                },
+                {
+                    title: "Measure Developer Productivity",
+                    description: "Compare throughput and cycle time across teams.",
+                    action() {
+                        closeUseCases();
+                        showPage("page-teams-overview");
+                        updateSidebarFor("page-teams-overview");
+                        showHighlight(
+                            "Weekly Throughput and Coding Cycle Time are your core productivity signals. Use Investment Breakdown for strategic alignment.",
+                        );
+                    },
+                },
+                {
+                    title: "Optimize Sprint Planning",
+                    description: "Analyze ticket metrics to improve planning accuracy.",
+                    action() {
+                        closeUseCases();
+                        showPage("page-ticket-throughput");
+                        updateSidebarFor("page-ticket-throughput");
+                        showHighlight("Resolution stage dominates lead time. Focus sprint planning on reducing Resolution stage variance.");
+                    },
+                },
+                {
+                    title: "Board-Level Engineering Report",
+                    description: "Executive summary of team performance and investment.",
+                    action() {
+                        closeUseCases();
+                        showPage("page-teams-overview");
+                        updateSidebarFor("page-teams-overview");
+                        showHighlight("Investment Breakdown and Team Alerts provide the key signals for board-level engineering reporting.");
+                    },
+                },
+            ];
+
+            function renderUseCasesList() {
+                const list = document.getElementById("use-cases-list");
+                list.innerHTML = useCases
+                    .map(
+                        (uc, i) => `
+            <div class="use-case-item" onclick="useCases[${i}].action()">
+                <div class="use-case-title">${uc.title}</div>
+                <div class="use-case-description">${uc.description}</div>
+            </div>
+        `,
+                    )
+                    .join("");
+            }
+
+            function openUseCases() {
+                document.getElementById("use-cases-overlay").classList.add("active");
+                document.getElementById("use-cases-panel").classList.add("active");
+            }
+
+            function closeUseCases(event) {
+                if (event && event.target !== document.getElementById("use-cases-overlay")) return;
+                document.getElementById("use-cases-overlay").classList.remove("active");
+                document.getElementById("use-cases-panel").classList.remove("active");
+            }
+
+            function showHighlight(msg) {
+                const existing = document.querySelector(".highlight-tooltip");
+                if (existing) existing.remove();
+                const tip = document.createElement("div");
+                tip.className = "highlight-tooltip";
+                tip.textContent = msg;
+                document.body.appendChild(tip);
+                setTimeout(() => tip.remove(), 5000);
+            }
+
+            function updateSidebarFor(pageId) {
+                document.querySelectorAll(".nav-item").forEach((i) => i.classList.remove("active"));
+                const target = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+                if (target) target.classList.add("active");
+            }
+
+            // ─── INIT ─────────────────────────────────────────────────────────────────
+            document.addEventListener("DOMContentLoaded", () => {
+                initializeDropdowns();
+                initializeSidebar();
+                renderUseCasesList();
+                showPage("page-teams-overview");
+            });
+        </script>
+    </body>
+</html>
